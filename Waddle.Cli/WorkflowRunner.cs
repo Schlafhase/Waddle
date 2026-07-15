@@ -1,4 +1,5 @@
 using Penguins;
+using Penguins.ClientPenguins;
 using Penguins.ServerPenguins;
 using Spectre.Console;
 using Waddle.Config;
@@ -15,21 +16,26 @@ public static class WorkflowRunner
         {
             IPenguin p = wp switch
             {
-                { Cmd: { } cmd, ServerCmd: null, GetFolder: null, SendFolder: null } =>
-                    throw new NotImplementedException(),
+                { Cmd: { } cmd} =>
+                    new RunCommandPenguin(context)
+                    {
+                        Command = cmd,
+                        Name = wp.Name,
+                        IgnoreError = wp.IgnoreError,
+                    },
 
-                { Cmd: null, ServerCmd: { } serverCmd, GetFolder: null, SendFolder: null } =>
-                    new RunServerCommand(context)
+                { ServerCmd: { } serverCmd} =>
+                    new RunServerCommandPenguin(context)
                     {
                         Command = serverCmd,
                         Name = wp.Name,
                         IgnoreError = wp.IgnoreError,
                     },
 
-                { Cmd: null, ServerCmd: null, GetFolder: { } getFolder, SendFolder: null } =>
+                { GetFolder: { } getFolder} =>
                     throw new NotImplementedException(),
 
-                { Cmd: null, ServerCmd: null, GetFolder: null, SendFolder: { } sendFolder } =>
+                { SendFolder: { } sendFolder } =>
                     throw new NotImplementedException(),
 
                 _ => throw new ArgumentException(
@@ -138,7 +144,7 @@ public static class WorkflowRunner
                             throw;
                         }
                         ignoredErrors.Add(i);
-                        ctx.UpdateTarget(getTree(i+1));
+                        ctx.UpdateTarget(getTree(i + 1));
                     }
 
                     context.CancellationToken = new CancellationTokenSource(

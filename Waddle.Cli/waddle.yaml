@@ -5,6 +5,7 @@ UsePassword: false
 Keyfile: /home/Linus/.ssh/id_ed25519
 UseSshAgent: false
 ServerOutputFileName: /home/Linus/Projects/cs/Waddle/Waddle.Cli/output.txt
+ClientOutputFileName: /home/Linus/Projects/cs/Waddle/Waddle.Cli/coutput.txt
 FinishedIcon: "\U000F05E0 [italic dim]Success[/]"
 WaitingIcon: "\U000F051A [italic dim]Working[/]"
 ErrorIcon: "\U000F0159 [italic dim]Error[/]"

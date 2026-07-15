@@ -12,6 +12,7 @@ public struct WaddleConfig
     public string? Keyfile;
     public bool UseSshAgent;
     public string? ServerOutputFileName;
+    public string? ClientOutputFileName;
 
     public string FinishedIcon;
     public string WaitingIcon;

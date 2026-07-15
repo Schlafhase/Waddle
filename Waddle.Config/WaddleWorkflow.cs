@@ -21,7 +21,7 @@ public class WaddleWorkflow
     public static WaddleWorkflow FromYaml(string yaml, string name)
     {
         IDeserializer deserializer = new DeserializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
         return new WaddleWorkflow()

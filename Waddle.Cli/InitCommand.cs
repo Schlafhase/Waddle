@@ -172,7 +172,7 @@ public class InitCommand : Command
         cfg.ServerOutputFileName = AnsiConsole
             .Prompt(
                 new TextPrompt<string>(
-                    "[dim]Filename to store[/] [green]Output from the Server[/][dim] (leave empty to keep output in memory):[/]"
+                    "[dim]Filename to store[/] [green]Output from the server[/][dim] (leave empty to keep output in memory):[/]"
                 )
                     .DefaultValue(existingCfg.ServerOutputFileName ?? "")
                     .AllowEmpty()
@@ -189,7 +189,47 @@ public class InitCommand : Command
         }
 
         AnsiConsole.MarkupLineInterpolated(
-            $"[green]Server output[/] [dim]goes to: {cfg.ServerOutputFileName ?? "Memory"}[/]"
+            $"[green]Server output[/] [dim]goes to: [blue]{cfg.ServerOutputFileName ?? "Memory"}[/][/]"
+        );
+
+        // Client output
+        cfg.ClientOutputFileName = AnsiConsole
+            .Prompt(
+                new TextPrompt<string>(
+                    "[dim]Filename to store[/] [green]Output from the client[/][dim] (leave empty to keep output in memory):[/]"
+                )
+                    .DefaultValue(existingCfg.ClientOutputFileName ?? "")
+                    .AllowEmpty()
+                    .Validate(input =>
+                        {
+                            string trimmed = input.Trim();
+
+                            if (string.IsNullOrWhiteSpace(trimmed))
+                            {
+                                cfg.ClientOutputFileName = null;
+                                return ValidationResult.Success();
+                            }
+                            else
+                            {
+                            string fullPath = Path.GetFullPath(trimmed);
+                            return fullPath == cfg.ServerOutputFileName ? ValidationResult.Error("Client output can't be the same as server output.") : ValidationResult.Success();
+                            }
+                        }
+                    )
+            )
+            .Trim();
+
+        if (string.IsNullOrWhiteSpace(cfg.ClientOutputFileName))
+        {
+            cfg.ClientOutputFileName = null;
+        }
+        else
+        {
+            cfg.ClientOutputFileName = Path.GetFullPath(cfg.ClientOutputFileName);
+        }
+
+        AnsiConsole.MarkupLineInterpolated(
+            $"[green]Client output[/] [dim]goes to: [blue]{cfg.ClientOutputFileName ?? "Memory"}[/][/]"
         );
 
         // Nerd Fonts

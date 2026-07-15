@@ -12,6 +12,8 @@ public struct WaddleContext : IDisposable
     public CancellationToken CancellationToken = CancellationToken.None;
     public required Stream ServerOutput;
     public readonly StreamWriter ServerOutputWriter;
+    public required Stream ClientOutput;
+    public readonly StreamWriter ClientOutputWriter;
 
     [SetsRequiredMembers]
     public WaddleContext(WaddleConfig cfg, Func<string> getPassword)
@@ -44,6 +46,10 @@ public struct WaddleContext : IDisposable
             ? new FileStream(cfg.ServerOutputFileName, FileMode.Create)
             : new MemoryStream();
         ServerOutputWriter = new(ServerOutput);
+        ClientOutput = cfg.ClientOutputFileName is not null
+            ? new FileStream(cfg.ClientOutputFileName, FileMode.Create)
+            : new MemoryStream();
+        ClientOutputWriter = new(ClientOutput);
     }
 
     public readonly async Task Initialise()
@@ -61,5 +67,8 @@ public struct WaddleContext : IDisposable
 
         ServerOutputWriter.Flush();
         ServerOutput.Dispose();
+
+        ClientOutputWriter.Flush();
+        ClientOutput.Dispose();
     }
 }
