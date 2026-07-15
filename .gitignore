@@ -4,6 +4,7 @@
 ## Get latest from `dotnet new gitignore`
 
 TestServer/id_ed25519.pub
+output.txt
 # dotenv files
 .env
 

@@ -25,7 +25,6 @@ public class InitCommand : Command
                 configTable.AddColumns("Key", "Value");
                 foreach (FieldInfo info in typeof(WaddleConfig).GetFields())
                 {
-                    Console.WriteLine(info.Name);
                     configTable.AddRow(
                         info.Name,
                         info.GetValue(existingCfg)?.ToString() ?? "[italic]null[/]"
