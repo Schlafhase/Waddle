@@ -1,0 +1,11 @@
+- Name: "Change directory"
+  ServerCmd: "cd /home"
+- Name: "Sleep"
+  ServerCmd: "sleep 2"
+- Name: "Run Server command"
+  ServerCmd: "pwd"
+- Name: "Error"
+  ServerCmd: "asdf"
+  IgnoreError: true
+- Name: "After error"
+  ServerCmd: "echo hi"

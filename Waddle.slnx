@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Penguins/Penguins.csproj" />
+  <Project Path="Waddle.Cli/Waddle.Cli.csproj" />
+  <Project Path="Waddle.Config/Waddle.Config.csproj" />
+</Solution>
