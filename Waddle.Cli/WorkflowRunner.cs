@@ -1,3 +1,4 @@
+using System.Data;
 using Penguins;
 using Penguins.ClientPenguins;
 using Penguins.ServerPenguins;
@@ -16,27 +17,25 @@ public static class WorkflowRunner
         {
             IPenguin p = wp switch
             {
-                { Cmd: { } cmd} =>
-                    new RunCommandPenguin(context)
-                    {
-                        Command = cmd,
-                        Name = wp.Name,
-                        IgnoreError = wp.IgnoreError,
-                    },
+                { Cmd: { } cmd } => new RunCommandPenguin(context)
+                {
+                    Command = cmd,
+                    Name = wp.Name,
+                    IgnoreError = wp.IgnoreError,
+                    TimeoutMs = wp.TimeoutMs,
+                },
 
-                { ServerCmd: { } serverCmd} =>
-                    new RunServerCommandPenguin(context)
-                    {
-                        Command = serverCmd,
-                        Name = wp.Name,
-                        IgnoreError = wp.IgnoreError,
-                    },
+                { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(context)
+                {
+                    Command = serverCmd,
+                    Name = wp.Name,
+                    IgnoreError = wp.IgnoreError,
+                    TimeoutMs = wp.TimeoutMs,
+                },
 
-                { GetFolder: { } getFolder} =>
-                    throw new NotImplementedException(),
+                { GetFolder: { } getFolder } => throw new NotImplementedException(),
 
-                { SendFolder: { } sendFolder } =>
-                    throw new NotImplementedException(),
+                { SendFolder: { } sendFolder } => throw new NotImplementedException(),
 
                 _ => throw new ArgumentException(
                     "Workflow contains invalid penguins",
@@ -46,7 +45,7 @@ public static class WorkflowRunner
             penguins.Add(p);
         }
 
-        HashSet<int> ignoredErrors = [];
+        Dictionary<int, string> ignoredErrors = [];
         int error = -1;
         WaddleConfig cfg = context.Config;
 
@@ -84,10 +83,14 @@ public static class WorkflowRunner
                     color = "red";
                     suffix = cfg.ErrorIcon;
                 }
-                else if (ignoredErrors.Contains(i))
+                else if (ignoredErrors.TryGetValue(i, out string? error))
                 {
                     color = "purple";
                     suffix = cfg.IgnoredIcon;
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        suffix += $"[dim]: {error}[/]";
+                    }
                 }
                 else if (currentIndex > i)
                 {
@@ -117,39 +120,29 @@ public static class WorkflowRunner
             {
                 for (int i = 0; i < penguins.Count; i++)
                 {
+                    IPenguin p = penguins[i];
+                    using CancellationTokenSource tokenSource = p.TimeoutMs is { } timeout
+                        ? new CancellationTokenSource(TimeSpan.FromMilliseconds(timeout))
+                        : new CancellationTokenSource();
+
                     try
                     {
-                        switch (penguins[i])
-                        {
-                            case SynchronousPenguin sp:
-                                sp.Execute();
-                                break;
-
-                            case AsyncPenguin ap:
-                                await ap.Execute();
-                                break;
-
-                            default:
-                                throw new InvalidOperationException(
-                                    "Penguin was neither AsyncPenguin nor SynchronousPenguin"
-                                );
-                        }
+                        await p.Execute(tokenSource.Token);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        if (!penguins[i].IgnoreError)
+                        string message =
+                            e is TaskCanceledException ? "Penguin timed out." : e.Message;
+                        if (!p.IgnoreError)
                         {
                             error = i;
                             ctx.UpdateTarget(getTree(i));
                             throw;
                         }
-                        ignoredErrors.Add(i);
+                        ignoredErrors.Add(i, message.Replace("\n", " "));
                         ctx.UpdateTarget(getTree(i + 1));
                     }
 
-                    context.CancellationToken = new CancellationTokenSource(
-                        TimeSpan.FromMinutes(5)
-                    ).Token;
                     ctx.UpdateTarget(getTree(i + 1));
                 }
             })

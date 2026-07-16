@@ -11,7 +11,12 @@ public class InitCommand : Command
     {
         bool existing = false;
         // Set required fields so the compiler doesn't complain
-        WaddleConfig existingCfg = new() { Host = "", Username = "" };
+        WaddleConfig existingCfg = new()
+        {
+            Host = "",
+            Username = "",
+            DefaultWorkflow = "",
+        };
 
         if (File.Exists("waddle.yaml"))
         {
@@ -80,7 +85,12 @@ public class InitCommand : Command
         );
         AnsiConsole.WriteLine();
 
-        WaddleConfig cfg = new() { Host = "", Username = "" };
+        WaddleConfig cfg = new()
+        {
+            Host = "",
+            Username = "",
+            DefaultWorkflow = "deploy",
+        };
 
         // Hostname
         if (existing)
@@ -201,21 +211,24 @@ public class InitCommand : Command
                     .DefaultValue(existingCfg.ClientOutputFileName ?? "")
                     .AllowEmpty()
                     .Validate(input =>
-                        {
-                            string trimmed = input.Trim();
+                    {
+                        string trimmed = input.Trim();
 
-                            if (string.IsNullOrWhiteSpace(trimmed))
-                            {
-                                cfg.ClientOutputFileName = null;
-                                return ValidationResult.Success();
-                            }
-                            else
-                            {
-                            string fullPath = Path.GetFullPath(trimmed);
-                            return fullPath == cfg.ServerOutputFileName ? ValidationResult.Error("Client output can't be the same as server output.") : ValidationResult.Success();
-                            }
+                        if (string.IsNullOrWhiteSpace(trimmed))
+                        {
+                            cfg.ClientOutputFileName = null;
+                            return ValidationResult.Success();
                         }
-                    )
+                        else
+                        {
+                            string fullPath = Path.GetFullPath(trimmed);
+                            return fullPath == cfg.ServerOutputFileName
+                                ? ValidationResult.Error(
+                                    "Client output can't be the same as server output."
+                                )
+                                : ValidationResult.Success();
+                        }
+                    })
             )
             .Trim();
 
@@ -230,6 +243,12 @@ public class InitCommand : Command
 
         AnsiConsole.MarkupLineInterpolated(
             $"[green]Client output[/] [dim]goes to: [blue]{cfg.ClientOutputFileName ?? "Memory"}[/][/]"
+        );
+
+        // Default workflow
+        cfg.DefaultWorkflow = AnsiConsole.Ask(
+            "[dim]Name of the[/] [green]default workflow[/] [dim](run [blue]waddle[/] without arguments to run the default workflow):[/]",
+            "deploy"
         );
 
         // Nerd Fonts
@@ -258,6 +277,9 @@ public class InitCommand : Command
         File.WriteAllText("waddle.yaml", cfg.ToYaml());
 
         AnsiConsole.MarkupLine("[green]Saved configuration to [blue]waddle.yaml.[/][/]");
+        AnsiConsole.MarkupLine(
+            "[dim]Run[/] [blue]waddle init[/] [dim]again or edit the file directly to change values.[/]"
+        );
 
         return 0;
     }

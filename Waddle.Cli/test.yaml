@@ -1,14 +1,31 @@
 # multiple actions in one penguin will lead to unexpected behaviour
 - name: "Client command"
   cmd: "echo hello client"
+
 - name: "Change directory"
   serverCmd: "cd /home"
+
 - name: "Sleep"
   serverCmd: "sleep 2"
+
 - name: "Run Server command"
   serverCmd: "pwd"
+
+- name: "Timeout"
+  cmd: "sleep 20"
+  timeoutMs: 1000
+  ignoreError: true
+
+- name: "Ignore Error"
+  serverCmd: "asdf"
+  ignoreError: true
+
+- name: "sleep (again)"
+  cmd: "sleep 2"
+
 - name: "Error"
   serverCmd: "asdf"
   ignoreError: false
+
 - name: "After error"
   serverCmd: "echo hi server"

@@ -9,7 +9,7 @@ public class RunSettings : CommandSettings
 {
     [CommandArgument(0, "[workflow]")]
     [Description("The name of the file containing the workflow. The file ending can be omitted.")]
-    [DefaultValue("deploy")]
+    [DefaultValue("")]
     public required string Workflow { get; init; }
 }
 
@@ -45,22 +45,36 @@ public class RunCommand : AsyncCommand<RunSettings>
             return 1;
         }
 
+        string workflowName = settings.Workflow != "" ? settings.Workflow : config.DefaultWorkflow;
+        bool hasFileEnding = workflowName.EndsWith(".yaml") || workflowName.EndsWith(".yml");
+
         string yaml;
-        if (File.Exists(settings.Workflow))
+        if (File.Exists(workflowName) && hasFileEnding)
         {
-            yaml = File.ReadAllText(settings.Workflow);
+            yaml = File.ReadAllText(workflowName);
         }
-        else if (File.Exists(settings.Workflow + ".yaml"))
+        else if (File.Exists(workflowName + ".yaml") && !hasFileEnding)
         {
-            yaml = File.ReadAllText(settings.Workflow + ".yaml");
+            yaml = File.ReadAllText(workflowName + ".yaml");
         }
-        else if (File.Exists(settings.Workflow + ".yml"))
+        else if (File.Exists(workflowName + ".yml") && !hasFileEnding)
         {
-            yaml = File.ReadAllText(settings.Workflow + ".yml");
+            yaml = File.ReadAllText(workflowName + ".yml");
         }
         else
         {
-            AnsiConsole.MarkupLine("[red]The requested workflow doesn't exist[/]");
+            if (hasFileEnding)
+            {
+                AnsiConsole.MarkupLineInterpolated(
+                    $"[red]The requested workflow [blue]{workflowName}[/] doesn't exist. Create a file named [blue]{workflowName}[/] to create it.[/]"
+                );
+            }
+            else
+            {
+                AnsiConsole.MarkupLineInterpolated(
+                    $"[red]The requested workflow [blue]{workflowName}[/] doesn't exist. Create a file named [blue]{workflowName}.yaml[/] or [blue]{workflowName}.yml[/] to create it.[/]"
+                );
+            }
             return 1;
         }
 
@@ -77,9 +91,20 @@ public class RunCommand : AsyncCommand<RunSettings>
             .StartAsync("[yellow]Connecting[/]", async _ => await waddleContext.Initialise());
         AnsiConsole.MarkupLine($"[green]Connected {config.FinishedIcon}[/]");
 
-        WaddleWorkflow workflow = WaddleWorkflow.FromYaml(yaml, settings.Workflow);
+        WaddleWorkflow workflow = WaddleWorkflow.FromYaml(yaml, workflowName);
 
-        await WorkflowRunner.Run(workflow, waddleContext);
+        try
+        {
+            await WorkflowRunner.Run(workflow, waddleContext);
+        }
+        catch (TaskCanceledException)
+        {
+            AnsiConsole.MarkupLine("[red]A penguin timed out[/].");
+        }
+        catch (Exception e)
+        {
+            AnsiConsole.MarkupLineInterpolated($"[red]{e.Message}[/]");
+        }
 
         return 0;
     }

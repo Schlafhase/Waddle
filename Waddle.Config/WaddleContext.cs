@@ -9,7 +9,6 @@ public struct WaddleContext : IDisposable
     public required WaddleConfig Config;
     public required SshClient SshClient;
     public required SftpClient SftpClient;
-    public CancellationToken CancellationToken = CancellationToken.None;
     public required Stream ServerOutput;
     public readonly StreamWriter ServerOutputWriter;
     public required Stream ClientOutput;
@@ -54,8 +53,8 @@ public struct WaddleContext : IDisposable
 
     public readonly async Task Initialise()
     {
-        await SshClient.ConnectAsync(CancellationToken);
-        await SftpClient.ConnectAsync(CancellationToken);
+        await SshClient.ConnectAsync(CancellationToken.None);
+        await SftpClient.ConnectAsync(CancellationToken.None);
     }
 
     public readonly void Dispose()

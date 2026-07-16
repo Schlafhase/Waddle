@@ -7,6 +7,7 @@ public struct WorkflowPenguin
 {
     public required string Name;
     public bool IgnoreError;
+    public int? TimeoutMs;
     public string? Cmd;
     public string? ServerCmd;
     public string? SendFolder;
