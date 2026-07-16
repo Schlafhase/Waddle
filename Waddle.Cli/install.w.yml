@@ -1,0 +1,4 @@
+# - name: Publish
+#   run: publish
+- name: Move binary to directory in PATH
+  cmd: cp ./bin/Release/waddle ~/.dotnet/tools/waddle

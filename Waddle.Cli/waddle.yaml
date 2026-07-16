@@ -11,6 +11,5 @@ WaitingIcon: "\U000F051A [italic dim]Working[/]"
 ErrorIcon: "\U000F0159 [italic dim]Error[/]"
 IgnoredIcon:  [italic dim]Ignored Error[/]
 NotActiveIcon: ' '
-DefaultWorkflow: deploy
-VerboseErrors: false
 LogFileName: waddle.log
+DefaultWorkflow: deploy

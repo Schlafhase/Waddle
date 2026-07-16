@@ -1,4 +1,3 @@
-
 namespace Penguins;
 
 public interface IPenguin

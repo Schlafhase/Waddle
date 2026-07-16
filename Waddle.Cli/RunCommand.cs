@@ -46,23 +46,53 @@ public class RunCommand : AsyncCommand<RunSettings>
             return 1;
         }
 
-        string workflowName = settings.Workflow != "" ? settings.Workflow : config.DefaultWorkflow;
-        bool hasFileEnding = workflowName.EndsWith(".yaml") || workflowName.EndsWith(".yml");
+        // Set up Waddle Context
+        await using WaddleContext waddleContext = new(
+            config,
+            getPassword: () =>
+                AnsiConsole.Ask<string>(
+                    "[yellow]Please enter your password for the remote host:[/]"
+                )
+        );
 
-        string yaml;
-        if (File.Exists(workflowName) && hasFileEnding)
+        waddleContext.Logger.LogInformation("Waddle context created. Hello World!");
+
+        // Find workflow file
+        List<string> allowedFileEndings = [".w.yaml", ".w.yml", ".yaml", ".yml"];
+        string workflowName = settings.Workflow != "" ? settings.Workflow : config.DefaultWorkflow;
+        bool hasFileEnding = allowedFileEndings.Any(workflowName.EndsWith);
+        waddleContext.Logger.LogTrace("Finding workflow file for `{workflow}`", workflowName);
+
+        string yaml = "";
+        if (hasFileEnding)
         {
-            yaml = File.ReadAllText(workflowName);
-        }
-        else if (File.Exists(workflowName + ".yaml") && !hasFileEnding)
-        {
-            yaml = File.ReadAllText(workflowName + ".yaml");
-        }
-        else if (File.Exists(workflowName + ".yml") && !hasFileEnding)
-        {
-            yaml = File.ReadAllText(workflowName + ".yml");
+            waddleContext.Logger.LogTrace("Checking `{file}`", workflowName);
+            if (File.Exists(workflowName))
+            {
+                waddleContext.Logger.LogInformation(
+                    "Using `{file}` as workflow file",
+                    workflowName
+                );
+                yaml = File.ReadAllText(workflowName);
+            }
         }
         else
+        {
+            foreach (string ending in allowedFileEndings)
+            {
+                waddleContext.Logger.LogTrace("Checking `{file}`", workflowName + ending);
+                if (File.Exists(workflowName + ending))
+                {
+                    waddleContext.Logger.LogInformation(
+                        "Using `{file}` as workflow file",
+                        workflowName + ending
+                    );
+                    yaml = File.ReadAllText(workflowName + ending);
+                    break;
+                }
+            }
+        }
+        if (string.IsNullOrWhiteSpace(yaml))
         {
             if (hasFileEnding)
             {
@@ -73,36 +103,20 @@ public class RunCommand : AsyncCommand<RunSettings>
             else
             {
                 AnsiConsole.MarkupLineInterpolated(
-                    $"[red]The requested workflow [blue]{workflowName}[/] doesn't exist. Create a file named [blue]{workflowName}.yaml[/] or [blue]{workflowName}.yml[/] to create it.[/]"
+                    $"[red]The requested workflow [blue]{workflowName}[/] doesn't exist. Create a file named [blue]{workflowName}.yaml[/] or [blue]{workflowName}.yml[/] to create it. You can also name the file [blue]{workflowName}.w.yaml[/] or [blue]{workflowName}.w.yml[/] to avoid conflicts with other tools.[/]"
                 );
             }
             return 1;
         }
 
-        await using WaddleContext waddleContext = new(
-            config,
-            getPassword: () =>
-                AnsiConsole.Ask<string>(
-                    "[yellow]Please enter your password for the remote host:[/]"
-                )
-        );
-
-        waddleContext.Logger.LogInformation("Waddle context created. Hello World!");
-        waddleContext.Logger.LogInformation("Establishing SSH connection");
-
-        await AnsiConsole
-            .Status()
-            .StartAsync("[yellow]Connecting[/]", async _ => await waddleContext.Initialise());
-        AnsiConsole.MarkupLine($"[green]Connected {config.FinishedIcon}[/]");
-
-        waddleContext.Logger.LogInformation("SSH Connected");
-
+        // Parse workflow
         waddleContext.Logger.LogInformation("Parsing workflow");
         WaddleWorkflow workflow;
 
         try
         {
             workflow = WaddleWorkflow.FromYaml(yaml, workflowName);
+            ArgumentNullException.ThrowIfNull(workflow.WorkflowPenguins);
         }
         catch (Exception e)
         {
@@ -112,6 +126,15 @@ public class RunCommand : AsyncCommand<RunSettings>
             throw;
         }
 
+        // Connect
+        waddleContext.Logger.LogInformation("Establishing SSH connection");
+        await AnsiConsole
+            .Status()
+            .StartAsync("[yellow]Connecting[/]", async _ => await waddleContext.Initialise());
+        AnsiConsole.MarkupLine($"[green]Connected {config.FinishedIcon}[/]");
+        waddleContext.Logger.LogInformation("SSH Connected");
+
+        // Run Workflow
         waddleContext.Logger.LogInformation("Sarting workflow");
         try
         {
@@ -125,7 +148,10 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (Exception e)
         {
-            waddleContext.Logger.LogError("An error occurred in the workflow: \n{err}", e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            waddleContext.Logger.LogError(
+                "An error occurred in the workflow: \n{err}",
+                e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace
+            );
             if (config.VerboseErrors)
             {
                 AnsiConsole.WriteException(e);

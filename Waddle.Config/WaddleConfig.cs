@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-
 using Renci.SshNet.Security;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -41,19 +40,19 @@ public struct WaddleConfig
     public readonly List<string> Validate()
     {
         List<string> unset = [];
-        if (Host is null)
+        if (string.IsNullOrWhiteSpace(Host))
         {
             unset.Add(nameof(Host));
         }
-        if (Username is null)
+        if (string.IsNullOrWhiteSpace(Username))
         {
             unset.Add(nameof(Username));
         }
-        if (!UsePassword && !UseSshAgent && Keyfile is null)
+        if (!UsePassword && !UseSshAgent && string.IsNullOrWhiteSpace(Keyfile))
         {
             unset.Add($"One of {nameof(UsePassword)}, {nameof(Keyfile)} or {nameof(UseSshAgent)}");
         }
-        if (DefaultWorkflow is null)
+        if (string.IsNullOrWhiteSpace(DefaultWorkflow))
         {
             unset.Add(nameof(DefaultWorkflow));
         }
