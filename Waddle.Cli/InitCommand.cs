@@ -269,10 +269,11 @@ public class InitCommand : Command
         }
         else
         {
-            cfg.FinishedIcon = ":check_mark:";
-            cfg.WaitingIcon = ":three_o_clock:";
-            cfg.ErrorIcon = "×";
+            cfg.FinishedIcon = ":check_mark: [italic dim]Success[/]";
+            cfg.WaitingIcon = ":three_o_clock: [italic dim]Working[/]";
+            cfg.ErrorIcon = "× [italic dim]Error[/]";
             cfg.NotActiveIcon = ":zzz:";
+            cfg.IgnoredIcon = ":minus: [italic dim]Ignored Error[/]";
         }
 
         File.WriteAllText("waddle.yaml", cfg.ToYaml());
