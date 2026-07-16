@@ -23,8 +23,13 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
   - [Project overview](#project-overview)
 - [How it works](#how-it-works)
 
-
 ## Installation
+
+> [!NOTE]
+>
+> The binary for Windows hasn't been tested yet
+
+<!--TODO: test windows version 😔-->
 
 Grab the binary from the
 [latest release](https://github.com/Schlafhase/Waddle/releases/) (`waddle` for
@@ -184,7 +189,7 @@ specific penguins. Every penguin imlements `Penguins.IPenguin` which ensures
 they have an async `Execute` method. That makes it easy to execute each penguin
 after the others.
 
-> [!NOTE] Note for developers
+> [!NOTE]
 >
 > If you implement your own penguins, you'll likely want to inherit from
 > `Penguins.PenguinBase`.
