@@ -5,7 +5,7 @@ can also be used to automate other kinds of client/server interaction. Think of
 it as little penguins waddling back and forth between your client and your
 server (or nest).
 
-![Demo](./media/Waddle_demo.mp4)
+https://github.com/user-attachments/assets/4116d550-c0f4-4232-baba-508ac92ed45f
 
 The video shows me using Waddle to deploy a Nextjs project. I added the text
 "Deployed using Waddle" which can be seen at the end of the video.
