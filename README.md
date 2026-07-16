@@ -15,6 +15,8 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 # Table of Contents
 
 - [Installation](#installation)
+  - [Using dotnet tools](#using-dotnet-tools)
+  - [Manual installation](#manual-installation)
 - [Usage](#usage)
   - [Creating workflows](#creating-workflows)
     - [Example](#example)
@@ -25,6 +27,14 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
   - [Project overview](#project-overview)
 - [How it works](#how-it-works)
 - [Planned features](#planned-features)
+
+## Quick start to try the project
+
+If you just want to try the project temporarily follow these instructions:
+
+```sh
+
+```
 
 ## Installation
 
@@ -209,8 +219,7 @@ Port: 22
 The workflow parsed from the yaml parser gets converted to penguins using
 pattern-matching. There are patterns to check for required parameters of
 specific penguins. Every penguin imlements `Penguins.IPenguin` which ensures
-they have an async `Execute` method. That makes it easy to execute each penguin
-after the others.
+they have an async `Execute` method. That makes it easy to execute each penguin.
 
 > [!NOTE]
 >
