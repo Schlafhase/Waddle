@@ -10,6 +10,20 @@ https://github.com/user-attachments/assets/4116d550-c0f4-4232-baba-508ac92ed45f
 The video shows me using Waddle to deploy a Nextjs project. I added the text
 "Deployed using Waddle" which can be seen at the end of the video.
 
+# Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Creating workflows](#creating-workflows)
+    - [Example](#example)
+  - [Running Workflows](#running-workflows)
+- [Full config specification](#full-config-specification)
+- [For developers](#for-developers)
+  - [Test Server](#test-server)
+  - [Project overview](#project-overview)
+- [How it works](#how-it-works)
+
+
 ## Installation
 
 Grab the binary from the
@@ -39,7 +53,7 @@ available penguins:
 | SendFile         | Uploads a single file to a destination (file!) on the server                   | `sendFile` (string) `destination`                |
 | ReceiveFile      | Downloads a single file from the server to a destination (file!) on the client | `receiveFile` (string) `destination` (string)    |
 
-> [!NOTE]
+> [!WARNING]
 >
 > Defining parameters matching multiple penguins can lead to unexpected
 > behaviour
@@ -116,26 +130,64 @@ required string DefaultWorkflow;
 bool VerboseErrors;
 ```
 
-# Waddle Devlog 3 :penguin-noted:
+## For developers
 
-## What changed? :pr:
+This project needs the .NET SDK to be installed. Run these commands to set up
+the codebase:
 
-- Added a timeout option for _penguins_ (my name for workflow tasks)
-- Added SendFolderPenguin and ReceiveFolderPenguin which can send and receive
-  folders from the server
-- Added Logging
-- Added SendFilePenguin and ReceiveFilePenguin which can send and receive files
-- Improved the CLI
-- Got really stressed out trying to become #1 on the globaly hackatime
-  leaderboard 😅
-- Managed to become #1 on the global Hackatime leaderboard in last 24 hours
-  :yayayayayay-67-nb:
-- Added publish waddle workflow so I can build the binaries using waddle
-  :hehehe:
+```sh
+git clone https://github.com/Schlafhase/Waddle
+cd Waddle
+dotnet build
+```
 
-## What's planned? :plane-flapping:
+### Test Server
 
-- Completely refactor the workflow runner so that nested workflows can be
-  allowed :yay:
-- SendCompressedFolderPenguin :yayayayayayay:
-- ReceiveCompressedFolderPenguin :nayayayayay:
+This repository comes with a Dockerfile that can set up a server that runs SSH
+on it. Follow these instructions to set it up:
+
+```sh
+# cp ~/.ssh/id_ed25519.pub ./TestServer/id_ed25519.pub # Uncomment this if you want private key authentication
+docker build -t ssh-container ./TestServer
+docker create -p 2222:22 -t --name waddle-test-server ssh-container
+docker start waddle-test-server
+```
+
+Then use these values in your `waddle.yaml`:
+
+```yaml
+# ...
+Host: localhost
+Username: root
+Port: 22
+# Keyfile: ~/.ssh/id_ed25519 # If you copied your public key before building the docker image
+# UsePassword: true # If you didn't copy the public key
+# ...
+```
+
+> [!NOTE]
+>
+> If you use password authentication, the password is **Docker!**
+
+### Project overview
+
+- **Penguins:** This project contains the implementations for every penguin
+- **TestServer:** Contains a Dockerfile to build a quick server for testing
+- **Waddle.Cli:** The Command-Line-Interface. Can be run with `dotnet run`
+- **Waddle.Config:** Everything yaml-related
+
+## How it works
+
+The workflow parsed from the yaml parser gets converted to penguins using
+pattern-matching. There are patterns to check for required parameters of
+specific penguins. Every penguin imlements `Penguins.IPenguin` which ensures
+they have an async `Execute` method. That makes it easy to execute each penguin
+after the others.
+
+> [!NOTE] Note for developers
+>
+> If you implement your own penguins, you'll likely want to inherit from
+> `Penguins.PenguinBase`.
+
+Waddle uses SSH and SFTP (SSH File Transfer Protocol) under the hood. Penguins
+that need client/server interaction will use these technologies.

@@ -7,8 +7,10 @@ RUN mkdir /var/run/sshd
 
 RUN echo "Docker!\nDocker!" | passwd
 
-COPY ./id_ed25519.pub /root/.ssh/authorized_keys
-RUN chmod 600 /root/.ssh/authorized_keys
+# COPY ./id_ed25519.pub /root/.ssh/authorized_keys
+# RUN chmod 600 /root/.ssh/authorized_keys
+COPY placeholder ./id_ed25519.pu[b] /root/.ssh/
+RUN if [ -f /root/.ssh/id_ed25519.pub ]; then mv /root/.ssh/id_ed25519.pub /root/.ssh/authorized_keys; chmod 600 /root/.ssh/authorized_keys; fi
 
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
