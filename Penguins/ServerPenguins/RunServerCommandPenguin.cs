@@ -16,7 +16,7 @@ public class ServerCommandException : Exception
         : base(message, innerException) { }
 }
 
-public class RunServerCommandPenguin(WaddleContext context) : PenguinBase(context)
+public class RunServerCommandPenguin(WaddleContext context) : PenguinBase
 {
     public required string Command { get; init; }
     public string? Output { get; private set; }
@@ -24,11 +24,11 @@ public class RunServerCommandPenguin(WaddleContext context) : PenguinBase(contex
 
     public override async Task Execute(CancellationToken cancellationToken)
     {
-        using SshCommand cmd = Context.SshClient.CreateCommand(Command);
+        using SshCommand cmd = context.SshClient.CreateCommand(Command);
         await cmd.ExecuteAsync(cancellationToken);
 
-        await Context.ServerOutputWriter.WriteAsync(cmd.Result);
-        Context.Logger.LogTrace("Remote command output: {output}", cmd.Result);
+        await context.ServerOutputWriter.WriteAsync(cmd.Result);
+        context.Logger.LogTrace("Remote command output: {output}", cmd.Result);
         Output = cmd.Result;
         ExitStatus = cmd.ExitStatus;
 

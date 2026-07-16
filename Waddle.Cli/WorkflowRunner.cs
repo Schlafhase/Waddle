@@ -46,19 +46,20 @@ public static class WorkflowRunner
                         Source = sendFolder,
                         Destination = destination,
                     },
-                { SendFile: { } sendFile, Destination: { } destination } =>
-                    new SendFilePenguin(context)
-                    {
-                        Name = wp.Name,
-                        Source = sendFile,
-                        Destination = destination
-                    },
+                { SendFile: { } sendFile, Destination: { } destination } => new SendFilePenguin(
+                    context
+                )
+                {
+                    Name = wp.Name,
+                    Source = sendFile,
+                    Destination = destination,
+                },
                 { ReceiveFile: { } receiveFile, Destination: { } destination } =>
                     new ReceiveFilePenguin(context)
                     {
                         Name = wp.Name,
                         Source = receiveFile,
-                        Destination = destination
+                        Destination = destination,
                     },
                 _ => throw new ArgumentException("The workflow contains invalid penguins"),
             };
@@ -113,7 +114,7 @@ public static class WorkflowRunner
                     suffix = cfg.IgnoredIcon;
                     if (!string.IsNullOrWhiteSpace(error))
                     {
-                        suffix += $"[dim]: {error}[/]";
+                        suffix += $"[dim]: {Markup.Escape(error)}[/]";
                     }
                 }
                 else if (currentIndex > i)
@@ -125,6 +126,10 @@ public static class WorkflowRunner
                 {
                     color = "yellow";
                     suffix = cfg.WaitingIcon;
+                    if (!string.IsNullOrWhiteSpace(context.Status))
+                    {
+                        suffix += $"[dim]: {Markup.Escape(context.Status)}[/]";
+                    }
                 }
                 else
                 {
@@ -144,6 +149,7 @@ public static class WorkflowRunner
             {
                 for (int i = 0; i < penguins.Count; i++)
                 {
+                    context.OnStatusChange = () => ctx.UpdateTarget(getTree(i));
                     IPenguin p = penguins[i];
                     using CancellationTokenSource tokenSource = p.TimeoutMs is { } timeout
                         ? new CancellationTokenSource(TimeSpan.FromMilliseconds(timeout))
@@ -176,6 +182,7 @@ public static class WorkflowRunner
 
                     ctx.UpdateTarget(getTree(i + 1));
                 }
+                context.OnStatusChange = null;
             })
             .Spinner();
     }

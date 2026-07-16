@@ -1,0 +1,5 @@
+- name: Publish Linux
+  cmd: dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained "true"
+
+- name: Publish Windows
+  cmd: dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained "true"

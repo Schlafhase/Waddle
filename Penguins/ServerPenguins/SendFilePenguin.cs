@@ -2,7 +2,7 @@ using Waddle.Config;
 
 namespace Penguins.ServerPenguins;
 
-public class SendFilePenguin(WaddleContext context) : PenguinBase(context)
+public class SendFilePenguin(WaddleContext context) : PenguinBase
 {
     public required string Source;
     public required string Destination;
@@ -11,11 +11,11 @@ public class SendFilePenguin(WaddleContext context) : PenguinBase(context)
     {
         await using FileStream fs = File.OpenRead(Source);
         await SftpUtils.CreateDirectoryRecursive(
-            Context,
+            context,
             Path.GetDirectoryName(Destination)
                 ?? throw new InvalidOperationException("Invalid destination path"),
             cancellationToken
         );
-        await Context.SftpClient.UploadFileAsync(fs, Destination, cancellationToken);
+        await context.SftpClient.UploadFileAsync(fs, Destination, cancellationToken);
     }
 }

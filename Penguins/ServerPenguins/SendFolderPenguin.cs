@@ -1,9 +1,12 @@
+using System.Diagnostics;
+using System.Reflection;
+
 using Microsoft.Extensions.Logging;
 using Waddle.Config;
 
 namespace Penguins.ServerPenguins;
 
-public class SendFolderPenguin(WaddleContext context) : PenguinBase(context)
+public class SendFolderPenguin(WaddleContext context) : PenguinBase
 {
     public required string Source;
     public required string Destination;
@@ -19,13 +22,14 @@ public class SendFolderPenguin(WaddleContext context) : PenguinBase(context)
         CancellationToken cancellationToken
     )
     {
-        await SftpUtils.CreateDirectoryRecursive(Context, destination, cancellationToken);
+        await SftpUtils.CreateDirectoryRecursive(context, destination, cancellationToken);
         // Upload files
         foreach (string f in Directory.EnumerateFiles(path))
         {
-            Context.Logger.LogTrace("Uploading {file} to {destination}", f, destination);
+            context.Logger.LogTrace("Uploading {file} to {destination}", f, destination);
+            context.Status = $"Sending {Path.GetRelativePath(Directory.GetCurrentDirectory(), f)}";
             await using FileStream fs = File.OpenRead(f);
-            await Context.SftpClient.UploadFileAsync(
+            await context.SftpClient.UploadFileAsync(
                 fs,
                 Path.Combine(destination, Path.GetFileName(f)),
                 cancellationToken
@@ -41,5 +45,4 @@ public class SendFolderPenguin(WaddleContext context) : PenguinBase(context)
             );
         }
     }
-
 }

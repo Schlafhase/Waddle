@@ -21,7 +21,7 @@
 
 - name: Receive folder
   receiveFolder: /home/Linus/out/put/
-  destination: /output
+  destination: ./output
 
 - name: Sleep
   serverCmd: sleep 2

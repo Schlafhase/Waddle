@@ -16,7 +16,7 @@ public class CommandException : Exception
         : base(message, innerException) { }
 }
 
-public class RunCommandPenguin(WaddleContext context) : PenguinBase(context)
+public class RunCommandPenguin(WaddleContext context) : PenguinBase
 {
     public required string Command { get; init; }
     public string? Output { get; private set; }
@@ -58,8 +58,8 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase(context)
         Output = output;
         ExitStatus = p.ExitCode;
 
-        await Context.ClientOutputWriter.WriteAsync(output);
-        Context.Logger.LogTrace("Local command result: {output}", output);
+        await context.ClientOutputWriter.WriteAsync(output);
+        context.Logger.LogTrace("Local command result: {output}", output);
 
         if (ExitStatus is not null && ExitStatus != 0)
         {

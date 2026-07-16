@@ -24,7 +24,7 @@ public class RunCommand : AsyncCommand<RunSettings>
     {
         if (!File.Exists("waddle.yaml"))
         {
-            AnsiConsole.Markup(
+            AnsiConsole.MarkupLine(
                 "[red]Waddle hasn't been set up in this directory. Run `waddle init` to initialise a configuration file.[/]"
             );
             return 1;
@@ -125,7 +125,7 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (Exception e)
         {
-            waddleContext.Logger.LogError("An error occurred in the workflow: {err}", e.Message);
+            waddleContext.Logger.LogError("An error occurred in the workflow: {err}", e.StackTrace);
             if (config.VerboseErrors)
             {
                 AnsiConsole.WriteException(e);

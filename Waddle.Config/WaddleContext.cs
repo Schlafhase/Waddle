@@ -6,7 +6,7 @@ using SshNet.Agent;
 
 namespace Waddle.Config;
 
-public struct WaddleContext : IAsyncDisposable, IDisposable
+public sealed class WaddleContext : IAsyncDisposable, IDisposable
 {
     public required WaddleConfig Config;
 
@@ -19,6 +19,18 @@ public struct WaddleContext : IAsyncDisposable, IDisposable
     public readonly StreamWriter ClientOutputWriter;
 
     public required ILogger Logger;
+
+    public Action? OnStatusChange;
+
+    public string? Status
+    {
+        get => field;
+        set
+        {
+            field = value;
+            OnStatusChange?.Invoke();
+        }
+    }
 
     private readonly ILoggerFactory _loggerFactory;
 
@@ -75,13 +87,13 @@ public struct WaddleContext : IAsyncDisposable, IDisposable
         Logger = _loggerFactory.CreateLogger("Waddle");
     }
 
-    public readonly async Task Initialise()
+    public async Task Initialise()
     {
         await SshClient.ConnectAsync(CancellationToken.None);
         await SftpClient.ConnectAsync(CancellationToken.None);
     }
 
-    public readonly void Dispose()
+    public void Dispose()
     {
         SshClient.Disconnect();
         SshClient.Dispose();
@@ -97,7 +109,7 @@ public struct WaddleContext : IAsyncDisposable, IDisposable
         _loggerFactory.Dispose();
     }
 
-    public readonly async ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         SshClient.Disconnect();
         SftpClient.Disconnect();
