@@ -53,6 +53,13 @@ public static class WorkflowRunner
                         Source = sendFile,
                         Destination = destination
                     },
+                { ReceiveFile: { } receiveFile, Destination: { } destination } =>
+                    new ReceiveFilePenguin(context)
+                    {
+                        Name = wp.Name,
+                        Source = receiveFile,
+                        Destination = destination
+                    },
                 _ => throw new ArgumentException("The workflow contains invalid penguins"),
             };
             context.Logger.LogDebug("Created IPenguin {name}", p.Name);

@@ -6,8 +6,8 @@
   serverCmd: mkdir -p /home/Linus/testing && echo hello from the nest > /home/Linus/testing/text.txt
 
 - name: Retrieve text file
-  receiveFolder: /home/Linus/testing
-  destination: ./output
+  receiveFile: /home/Linus/testing/text.txt
+  destination: ./output/text.txt
 
 - name: Modify text file
   cmd: echo helloo from the client >> ./output/text.txt
@@ -18,6 +18,10 @@
 
 - name: Read file
   serverCmd: cat /home/Linus/out/put/textmodified.txt
+
+- name: Receive folder
+  receiveFolder: /home/Linus/out/put/
+  destination: /output
 
 - name: Sleep
   serverCmd: sleep 2

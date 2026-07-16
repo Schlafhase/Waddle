@@ -46,7 +46,7 @@ namespace Penguins.ServerPenguins
                 );
                 Directory.CreateDirectory(destination);
                 File.Delete(destinationPath);
-                await using FileStream fs = File.OpenWrite(Path.Combine(destination, file.Name));
+                await using FileStream fs = File.OpenWrite(destinationPath);
                 await Context.SftpClient.DownloadFileAsync(file.FullName, fs, cancellationToken);
             }
         }
