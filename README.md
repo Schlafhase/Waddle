@@ -67,8 +67,11 @@ available penguins:
 
 ### Additional Parameters
 
-In addition to the required parameters, each penguin can define these optional parameters:
-- `ignoreError` (bool): If true, the workflow will continue if this penguin fails
+In addition to the required parameters, each penguin can define these optional
+parameters:
+
+- `ignoreError` (bool): If true, the workflow will continue if this penguin
+  fails
 - `timeoutMs` (int): Sets the timeout in milliseconds
 
 #### Example
