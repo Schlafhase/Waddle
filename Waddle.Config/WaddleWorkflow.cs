@@ -11,7 +11,8 @@ public struct WorkflowPenguin
     public string? Cmd;
     public string? ServerCmd;
     public string? SendFolder;
-    public string? GetFolder;
+    public string? ReceiveFolder;
+    public string? Destination;
 }
 
 public class WaddleWorkflow

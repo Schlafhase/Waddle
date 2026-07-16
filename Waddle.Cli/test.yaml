@@ -2,14 +2,22 @@
 - name: "Client command"
   cmd: "echo hello client"
 
-- name: "Change directory"
-  serverCmd: "cd /home"
+- name: "Create text file"
+  serverCmd: "mkdir -p /home/Linus/testing && touch /home/Linus/testing/text.txt"
+
+- name: "Retrieve text file"
+  receiveFolder: "/home/Linus/testing"
+  destination: "./output"
+
+- name: "Remove old files"
+  serverCmd: "rm -rf /home/Linus/Penguins"
+
+- name: "Upload files"
+  sendFolder: "../Penguins"
+  destination: "/home/Linus/Penguins"
 
 - name: "Sleep"
   serverCmd: "sleep 2"
-
-- name: "Run Server command"
-  serverCmd: "pwd"
 
 - name: "Timeout"
   cmd: "sleep 20"

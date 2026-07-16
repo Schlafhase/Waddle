@@ -1,18 +1,26 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
+using NReco.Logging.File;
 using Renci.SshNet;
 using SshNet.Agent;
 
 namespace Waddle.Config;
 
-public struct WaddleContext : IDisposable
+public struct WaddleContext : IAsyncDisposable, IDisposable
 {
     public required WaddleConfig Config;
+
     public required SshClient SshClient;
     public required SftpClient SftpClient;
+
     public required Stream ServerOutput;
     public readonly StreamWriter ServerOutputWriter;
     public required Stream ClientOutput;
     public readonly StreamWriter ClientOutputWriter;
+
+    public required ILogger Logger;
+
+    private readonly ILoggerFactory _loggerFactory;
 
     [SetsRequiredMembers]
     public WaddleContext(WaddleConfig cfg, Func<string> getPassword)
@@ -36,19 +44,34 @@ public struct WaddleContext : IDisposable
             _ => throw new NotImplementedException(),
         };
 
-        ConnectionInfo info = new(cfg.Host, cfg.Port, cfg.Username, method);
+        _loggerFactory = LoggerFactory.Create(builder =>
+        {
+            if (cfg.LogFileName is not null)
+            {
+                builder.AddFile(cfg.LogFileName);
+            }
+        });
+        ConnectionInfo info = new(cfg.Host, cfg.Port, cfg.Username, method)
+        {
+            LoggerFactory = _loggerFactory,
+        };
 
         Config = cfg;
+
         SshClient = new(info);
         SftpClient = new(info);
+
         ServerOutput = cfg.ServerOutputFileName is not null
             ? new FileStream(cfg.ServerOutputFileName, FileMode.Create)
             : new MemoryStream();
         ServerOutputWriter = new(ServerOutput);
+
         ClientOutput = cfg.ClientOutputFileName is not null
             ? new FileStream(cfg.ClientOutputFileName, FileMode.Create)
             : new MemoryStream();
         ClientOutputWriter = new(ClientOutput);
+
+        Logger = _loggerFactory.CreateLogger("Waddle");
     }
 
     public readonly async Task Initialise()
@@ -69,5 +92,23 @@ public struct WaddleContext : IDisposable
 
         ClientOutputWriter.Flush();
         ClientOutput.Dispose();
+
+        _loggerFactory.Dispose();
+    }
+
+    public readonly async ValueTask DisposeAsync()
+    {
+        SshClient.Disconnect();
+        SftpClient.Disconnect();
+        SshClient.Dispose();
+        SftpClient.Dispose();
+
+        await ServerOutputWriter.FlushAsync();
+        await ServerOutput.DisposeAsync();
+
+        await ClientOutputWriter.FlushAsync();
+        await ClientOutput.DisposeAsync();
+
+        _loggerFactory.Dispose();
     }
 }

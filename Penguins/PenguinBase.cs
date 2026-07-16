@@ -5,9 +5,9 @@ namespace Penguins;
 public abstract class PenguinBase(WaddleContext context) : IPenguin
 {
     public WaddleContext Context => context;
-    public required string Name { get; init; }
-    public bool IgnoreError { get; init; }
-    public int? TimeoutMs { get; init; }
+    public required string Name { get; set; }
+    public bool IgnoreError { get; set; }
+    public int? TimeoutMs { get; set; }
 
-        public abstract Task Execute(CancellationToken cancellationToken);
+    public abstract Task Execute(CancellationToken cancellationToken);
 }

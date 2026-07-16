@@ -1,4 +1,5 @@
 using System.Data;
+using Microsoft.Extensions.Logging;
 using Penguins;
 using Penguins.ClientPenguins;
 using Penguins.ServerPenguins;
@@ -13,35 +14,43 @@ public static class WorkflowRunner
     {
         List<IPenguin> penguins = [];
 
+        context.Logger.LogInformation("Converting raw WorkflowPenguins to IPenguin");
         foreach (WorkflowPenguin wp in workflow.WorkflowPenguins)
         {
             IPenguin p = wp switch
             {
                 { Cmd: { } cmd } => new RunCommandPenguin(context)
                 {
-                    Command = cmd,
                     Name = wp.Name,
-                    IgnoreError = wp.IgnoreError,
-                    TimeoutMs = wp.TimeoutMs,
+                    Command = cmd,
                 },
 
                 { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(context)
                 {
-                    Command = serverCmd,
                     Name = wp.Name,
-                    IgnoreError = wp.IgnoreError,
-                    TimeoutMs = wp.TimeoutMs,
+                    Command = serverCmd,
                 },
 
-                { GetFolder: { } getFolder } => throw new NotImplementedException(),
+                { ReceiveFolder: { } receiveFolder, Destination: { } destination } =>
+                    new ReceiveFolderPenguin(context)
+                    {
+                        Name = wp.Name,
+                        Source = receiveFolder,
+                        Destination = destination,
+                    },
 
-                { SendFolder: { } sendFolder } => throw new NotImplementedException(),
-
-                _ => throw new ArgumentException(
-                    "Workflow contains invalid penguins",
-                    nameof(workflow)
-                ),
+                { SendFolder: { } sendFolder, Destination: { } destination } =>
+                    new SendFolderPenguin(context)
+                    {
+                        Name = wp.Name,
+                        Source = sendFolder,
+                        Destination = destination,
+                    },
+                _ => throw new ArgumentException("The workflow contains invalid penguins"),
             };
+            context.Logger.LogDebug("Created IPenguin {name}", p.Name);
+            p.TimeoutMs = wp.TimeoutMs;
+            p.IgnoreError = wp.IgnoreError;
             penguins.Add(p);
         }
 
@@ -51,6 +60,7 @@ public static class WorkflowRunner
 
         Tree getTree(int currentIndex)
         {
+            context.Logger.LogDebug("Rebuilding CLI tree");
             bool finished = currentIndex == penguins.Count;
             string masterColor;
             string masterSuffix;
@@ -127,18 +137,21 @@ public static class WorkflowRunner
 
                     try
                     {
+                        context.Logger.LogInformation("Running {name}", p.Name);
                         await p.Execute(tokenSource.Token);
                     }
                     catch (Exception e)
                     {
-                        string message =
-                            e is TaskCanceledException ? "Penguin timed out." : e.Message;
+                        string message = e is TaskCanceledException or OperationCanceledException
+                            ? "Penguin timed out."
+                            : e.Message;
                         if (!p.IgnoreError)
                         {
                             error = i;
                             ctx.UpdateTarget(getTree(i));
                             throw;
                         }
+                        context.Logger.LogWarning("Ignored error while running {name}: {err}", p.Name, e.Message);
                         ignoredErrors.Add(i, message.Replace("\n", " "));
                         ctx.UpdateTarget(getTree(i + 1));
                     }

@@ -17,6 +17,8 @@ public struct WaddleConfig
     public string? ServerOutputFileName;
     public string? ClientOutputFileName;
 
+    public string? LogFileName;
+
     public string FinishedIcon;
     public string WaitingIcon;
     public string ErrorIcon;
@@ -24,6 +26,8 @@ public struct WaddleConfig
     public string NotActiveIcon;
 
     public required string DefaultWorkflow;
+
+    public bool VerboseErrors;
 
     /// <summary>
     /// Validates a config object by checking if all required fields are set.
@@ -68,7 +72,7 @@ public struct WaddleConfig
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .Build();
 
-        var config=  deserializer.Deserialize<WaddleConfig>(yaml);
+        var config = deserializer.Deserialize<WaddleConfig>(yaml);
         config.ThrowIfInvalid();
         return config;
     }
