@@ -7,7 +7,7 @@ namespace Waddle.Config;
 
 public struct WaddleConfig
 {
-    public const string Version = "0.3";
+    public const string Version = "0.3.0";
 
     public required string Host;
     public int Port;
