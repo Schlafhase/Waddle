@@ -24,8 +24,20 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
   - [Test Server](#test-server)
   - [Project overview](#project-overview)
 - [How it works](#how-it-works)
+- [Planned features](#planned-features)
 
 ## Installation
+
+### Using dotnet tools
+
+If you have the .NET SDK installed, you can install Waddle with this simple
+command:
+
+```sh
+dotnet tool install -g Waddle.Cli
+```
+
+### Manual installation
 
 > [!NOTE]
 >
@@ -207,3 +219,10 @@ after the others.
 
 Waddle uses SSH and SFTP (SSH File Transfer Protocol) under the hood. Penguins
 that need client/server interaction will use these technologies.
+
+## Planned features
+
+- Allow nested workflows
+- Add SendCompressedFolderPenguin
+- Add ReceiveCompressedFolderPenguin
+- Add client-only workflows
