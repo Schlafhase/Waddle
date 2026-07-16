@@ -7,7 +7,12 @@ docker start waddle-test-server
 echo
 echo
 echo "---Waddle Test setup---------------------------"
-echo "Waddle test server started. Use root@localhost:2222 with the password 'Docker!' for authentication."
+echo "Waddle test server started. Use these settings:"
+echo "Host: localhost"
+echo "Username: root"
+echo "Port: 2222"
+echo
+echo "When asked for a password, use 'Docker!'"
 echo "-----------------------------------------------"
 echo
 echo

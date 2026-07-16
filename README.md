@@ -14,6 +14,7 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 
 # Table of Contents
 
+- [Quick Start](#quick-start)
 - [Installation](#installation)
   - [Using dotnet tools](#using-dotnet-tools)
   - [Manual installation](#manual-installation)
@@ -28,12 +29,18 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 - [How it works](#how-it-works)
 - [Planned features](#planned-features)
 
-## Quick start to try the project
+## Quick Start
 
-If you just want to try the project temporarily follow these instructions:
+**Requirements:** Docker, .NET SDK, wget, sh
+
+If you just want to try the project temporarily follow these instructions in any
+directory:
 
 ```sh
-
+# This will install the dotnet tool, spin up a docker container and run a test waddle workflow
+wget https://raw.githubusercontent.com/Schlafhase/Waddle/refs/heads/master/test_setup.sh && chmod +x ./test_setup.sh && ./test_setup.sh
+# This will clean everything up
+./waddle-tmp/uninstall_test_setup.sh
 ```
 
 ## Installation
