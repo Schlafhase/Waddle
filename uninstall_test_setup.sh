@@ -5,8 +5,8 @@ rm test_setup.sh
 
 echo
 echo
-echo "---Waddle Test setup---------------------------"
+echo "---Waddle Test setup---------------------------------------------------"
 echo "Waddle test setup removed"
-echo "-----------------------------------------------"
+echo "-----------------------------------------------------------------------"
 echo
 echo
