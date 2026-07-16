@@ -1,6 +1,6 @@
 # Waddle: Penguins with packets 📦🐧
-<img width="1282" height="283" alt="image" src="https://github.com/user-attachments/assets/3dce8a42-17ba-4ac5-aee7-70dbe36a5b39" />
 
+<img width="1282" height="283" alt="image" src="https://github.com/user-attachments/assets/3dce8a42-17ba-4ac5-aee7-70dbe36a5b39" />
 
 Waddle is a tool that automates deploying your project to servers like nest. It
 can also be used to automate other kinds of client/server interaction. Think of
@@ -64,6 +64,12 @@ available penguins:
 >
 > Defining parameters matching multiple penguins can lead to unexpected
 > behaviour
+
+### Additional Parameters
+
+In addition to the required parameters, each penguin can define these optional parameters:
+- `ignoreError` (bool): If true, the workflow will continue if this penguin fails
+- `timeoutMs` (int): Sets the timeout in milliseconds
 
 #### Example
 
