@@ -12,5 +12,5 @@ ErrorIcon: "\U000F0159 [italic dim]Error[/]"
 IgnoredIcon:  [italic dim]Ignored Error[/]
 NotActiveIcon: ' '
 DefaultWorkflow: deploy
-VerboseErrors: true
+VerboseErrors: false
 LogFileName: waddle.log

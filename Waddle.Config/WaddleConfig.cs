@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet.Security;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -18,6 +20,7 @@ public struct WaddleConfig
     public string? ClientOutputFileName;
 
     public string? LogFileName;
+    public LogLevel LogLevel;
 
     public string FinishedIcon;
     public string WaitingIcon;

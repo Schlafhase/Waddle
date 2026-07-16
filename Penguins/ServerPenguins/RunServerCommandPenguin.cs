@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 using Renci.SshNet;
 using Waddle.Config;
 
@@ -26,6 +28,7 @@ public class RunServerCommandPenguin(WaddleContext context) : PenguinBase(contex
         await cmd.ExecuteAsync(cancellationToken);
 
         await Context.ServerOutputWriter.WriteAsync(cmd.Result);
+        Context.Logger.LogTrace("Remote command output: {output}", cmd.Result);
         Output = cmd.Result;
         ExitStatus = cmd.ExitStatus;
 

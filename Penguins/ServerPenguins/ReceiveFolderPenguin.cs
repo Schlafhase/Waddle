@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-
 using Renci.SshNet.Sftp;
 using Waddle.Config;
 
@@ -39,13 +38,16 @@ namespace Penguins.ServerPenguins
                     continue;
                 }
 
-                Context.Logger.LogTrace("Downloading file {file} to {dest}", file.FullName, destination);
-                Directory.CreateDirectory(destination);
-                await Context.SftpClient.DownloadFileAsync(
+                string destinationPath = Path.GetFullPath(Path.Combine(destination, file.Name));
+                Context.Logger.LogTrace(
+                    "Downloading file {file} to {dest}",
                     file.FullName,
-                    File.OpenWrite(Path.Combine(destination, file.Name)),
-                    cancellationToken
+                    destinationPath
                 );
+                Directory.CreateDirectory(destination);
+                File.Delete(destinationPath);
+                await using FileStream fs = File.OpenWrite(Path.Combine(destination, file.Name));
+                await Context.SftpClient.DownloadFileAsync(file.FullName, fs, cancellationToken);
             }
         }
     }

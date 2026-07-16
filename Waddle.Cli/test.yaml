@@ -1,39 +1,41 @@
 # multiple actions in one penguin will lead to unexpected behaviour
-- name: "Client command"
-  cmd: "echo hello client"
+- name: Client command
+  cmd: echo hello client
 
-- name: "Create text file"
-  serverCmd: "mkdir -p /home/Linus/testing && touch /home/Linus/testing/text.txt"
+- name: Create text file
+  serverCmd: mkdir -p /home/Linus/testing && echo hello from the nest > /home/Linus/testing/text.txt
 
-- name: "Retrieve text file"
-  receiveFolder: "/home/Linus/testing"
-  destination: "./output"
+- name: Retrieve text file
+  receiveFolder: /home/Linus/testing
+  destination: ./output
 
-- name: "Remove old files"
-  serverCmd: "rm -rf /home/Linus/Penguins"
+- name: Modify text file
+  cmd: echo helloo from the client >> ./output/text.txt
 
-- name: "Upload files"
-  sendFolder: "../Penguins"
-  destination: "/home/Linus/Penguins"
+- name: Send text file back
+  sendFile: ./output/text.txt
+  destination: /home/Linus/out/put/textmodified.txt
 
-- name: "Sleep"
-  serverCmd: "sleep 2"
+- name: Read file
+  serverCmd: cat /home/Linus/out/put/textmodified.txt
 
-- name: "Timeout"
-  cmd: "sleep 20"
+- name: Sleep
+  serverCmd: sleep 2
+
+- name: Timeout
+  cmd: sleep 20
   timeoutMs: 1000
   ignoreError: true
 
-- name: "Ignore Error"
-  serverCmd: "asdf"
+- name: Ignore Error
+  serverCmd: asdf
   ignoreError: true
 
-- name: "sleep (again)"
-  cmd: "sleep 2"
+- name: sleep (again)
+  cmd: sleep 2
 
-- name: "Error"
-  serverCmd: "asdf"
-  ignoreError: false
+- name: Local Error
+  cmd: asdf
 
-- name: "After error"
-  serverCmd: "echo hi server"
+- name: After error
+  serverCmd: echo hi server

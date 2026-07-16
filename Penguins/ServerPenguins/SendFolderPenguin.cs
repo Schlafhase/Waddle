@@ -19,7 +19,7 @@ public class SendFolderPenguin(WaddleContext context) : PenguinBase(context)
         CancellationToken cancellationToken
     )
     {
-        await createDirectoryRecursive(destination, cancellationToken);
+        await SftpUtils.CreateDirectoryRecursive(Context, destination, cancellationToken);
         // Upload files
         foreach (string f in Directory.EnumerateFiles(path))
         {
@@ -42,21 +42,4 @@ public class SendFolderPenguin(WaddleContext context) : PenguinBase(context)
         }
     }
 
-    private async Task createDirectoryRecursive(string path, CancellationToken cancellationToken)
-    {
-        if (await Context.SftpClient.ExistsAsync(path, cancellationToken))
-        {
-            return;
-        }
-        DirectoryInfo? parent = Directory.GetParent(path);
-        if (
-            parent is not null
-            && !await Context.SftpClient.ExistsAsync(parent.FullName, cancellationToken)
-        )
-        {
-            Context.Logger.LogTrace("Creating remote directory {dir}", parent.FullName);
-            await createDirectoryRecursive(parent.FullName, cancellationToken);
-        }
-        await Context.SftpClient.CreateDirectoryAsync(path, cancellationToken);
-    }
 }

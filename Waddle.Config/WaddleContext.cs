@@ -50,6 +50,7 @@ public struct WaddleContext : IAsyncDisposable, IDisposable
             {
                 builder.AddFile(cfg.LogFileName);
             }
+            builder.AddFilter("Waddle", cfg.LogLevel);
         });
         ConnectionInfo info = new(cfg.Host, cfg.Port, cfg.Username, method)
         {

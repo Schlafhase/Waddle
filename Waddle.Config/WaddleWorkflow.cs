@@ -12,6 +12,8 @@ public struct WorkflowPenguin
     public string? ServerCmd;
     public string? SendFolder;
     public string? ReceiveFolder;
+    public string? SendFile;
+    public string? ReceiveFile;
     public string? Destination;
 }
 

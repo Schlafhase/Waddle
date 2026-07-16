@@ -46,6 +46,13 @@ public static class WorkflowRunner
                         Source = sendFolder,
                         Destination = destination,
                     },
+                { SendFile: { } sendFile, Destination: { } destination } =>
+                    new SendFilePenguin(context)
+                    {
+                        Name = wp.Name,
+                        Source = sendFile,
+                        Destination = destination
+                    },
                 _ => throw new ArgumentException("The workflow contains invalid penguins"),
             };
             context.Logger.LogDebug("Created IPenguin {name}", p.Name);
@@ -151,7 +158,11 @@ public static class WorkflowRunner
                             ctx.UpdateTarget(getTree(i));
                             throw;
                         }
-                        context.Logger.LogWarning("Ignored error while running {name}: {err}", p.Name, e.Message);
+                        context.Logger.LogWarning(
+                            "Ignored error while running {name}: {err}",
+                            p.Name,
+                            e.Message
+                        );
                         ignoredErrors.Add(i, message.Replace("\n", " "));
                         ctx.UpdateTarget(getTree(i + 1));
                     }
