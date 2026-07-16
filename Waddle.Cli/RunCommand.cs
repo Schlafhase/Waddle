@@ -125,7 +125,7 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (Exception e)
         {
-            waddleContext.Logger.LogError("An error occurred in the workflow: {err}", e.StackTrace);
+            waddleContext.Logger.LogError("An error occurred in the workflow: \n{err}", e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
             if (config.VerboseErrors)
             {
                 AnsiConsole.WriteException(e);

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Reflection;
-
 using Microsoft.Extensions.Logging;
 using Waddle.Config;
 
@@ -28,12 +27,22 @@ public class SendFolderPenguin(WaddleContext context) : PenguinBase
         {
             context.Logger.LogTrace("Uploading {file} to {destination}", f, destination);
             context.Status = $"Sending {Path.GetRelativePath(Directory.GetCurrentDirectory(), f)}";
-            await using FileStream fs = File.OpenRead(f);
-            await context.SftpClient.UploadFileAsync(
-                fs,
-                Path.Combine(destination, Path.GetFileName(f)),
-                cancellationToken
-            );
+            try
+            {
+                await using FileStream fs = File.OpenRead(f);
+                await context.SftpClient.UploadFileAsync(
+                    fs,
+                    Path.Combine(destination, Path.GetFileName(f)),
+                    cancellationToken
+                );
+            }
+            catch (FileNotFoundException)
+            {
+                context.Logger.LogWarning(
+                    "Skipping file {file} because the file was not found.",
+                    f
+                );
+            }
         }
         // Upload subdirectories
         foreach (string dir in Directory.EnumerateDirectories(path))

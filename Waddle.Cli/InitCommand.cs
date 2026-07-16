@@ -79,6 +79,7 @@ public class InitCommand : Command
 
         FigletText title = new FigletText(font, "Waddle").Color(Color.Yellow);
         AnsiConsole.Write(title);
+        AnsiConsole.MarkupLine($"[dim]Waddle version {WaddleConfig.Version}[/]");
 
         AnsiConsole.MarkupLine(
             "[italic]Waddle needs some information to create a working configuration[/]"
