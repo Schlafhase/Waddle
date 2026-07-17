@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
 using Renci.SshNet;
@@ -8,7 +9,12 @@ namespace Waddle.Config;
 
 public sealed class WaddleContext : IAsyncDisposable, IDisposable
 {
-    public const string Version = "0.3.1";
+    public static Version Version =>
+        Assembly.GetEntryAssembly()?.GetName()?.Version
+        ?? throw new MissingFieldException("Project doesn't specify a version");
+
+    public static string VersionString =>
+        $"{Version.Major}.{Version.Minor}.{Version.Build}";
 
     public required WaddleConfig Config;
 

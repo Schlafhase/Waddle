@@ -6,6 +6,7 @@ namespace Waddle.Config;
 
 public struct WaddleConfig
 {
+#region ConfigFields
     public required string Host;
     public int Port;
     public required string Username;
@@ -29,6 +30,7 @@ public struct WaddleConfig
     public required string DefaultWorkflow;
 
     public bool VerboseErrors;
+#endregion
 
     [YamlIgnore]
     public readonly string? KeyfileFullPath =>
