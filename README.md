@@ -1,3 +1,6 @@
+
+<!-- GENERATED FILE. DO NOT EDIT -->
+
 # Waddle: Penguins with packets 📦🐧
 
 <img width="1282" height="283" alt="image" src="https://github.com/user-attachments/assets/3dce8a42-17ba-4ac5-aee7-70dbe36a5b39" />
@@ -284,4 +287,3 @@ that need client/server interaction will use these technologies.
 - `waddle new` command to add a workflow
 - Run waddle workflows from the directory of the workflow to prevent unexpected
   behaviour
-- UI element that shows output

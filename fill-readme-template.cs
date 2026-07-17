@@ -6,6 +6,7 @@ const string targetPath = "README.md";
 string markdown = await File.ReadAllTextAsync(templatePath);
 
 Dictionary<string, string> replacements = [];
+replacements.Add("{disclaimer}", "<!-- GENERATED FILE. DO NOT EDIT -->");
 replacements.Add(
     "{configFields}",
     await getRegion("./Waddle.Config/WaddleConfig.cs", "ConfigFields")

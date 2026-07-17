@@ -14,6 +14,7 @@ RUN if [ -f /root/.ssh/id_ed25519.pub ]; then mv /root/.ssh/id_ed25519.pub /root
 
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+RUN sed -i 's/^session\s*required\s*pam_loginuid.so/session optional pam_loginuid.so/' /etc/pam.d/sshd
 
 EXPOSE 22
 
