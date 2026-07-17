@@ -180,30 +180,15 @@ workflow.
 You can edit these in `waddle.yaml`
 
 ```cs
-required string Host;
-int Port;
-required string Username;
-
-bool UsePassword;
-string? Keyfile;
-bool UseSshAgent;
-
-string? ServerOutputFileName;
-string? ClientOutputFileName;
-
-string? LogFileName;
-LogLevel LogLevel; // Trace | Debug | Information | Warning | Error | Critical | None
-
-string FinishedIcon;
-string WaitingIcon;
-string ErrorIcon;
-string IgnoredIcon;
-string NotActiveIcon;
-
-required string DefaultWorkflow;
-
-bool VerboseErrors;
+{configFields}
 ```
+
+### Server config
+
+```cs
+{serverConfigField}
+```
+
 
 ## For developers
 
@@ -272,7 +257,7 @@ that need client/server interaction will use these technologies.
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
-- Add client-only workflows
+- Add client-only workflows *(Implemented but not thoroughly tested)*
 - Workflow variables
 - `waddle new` command to add a workflow
 - Run waddle workflows from the directory of the workflow to prevent unexpected

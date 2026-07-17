@@ -24,7 +24,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
         // Upload files
         foreach (string f in Directory.EnumerateFiles(path))
         {
-            context.Logger.LogTrace("Uploading {file} to {destination}", f, destination);
+            context.Logger?.LogTrace("Uploading {file} to {destination}", f, destination);
             context.Status = $"Sending {Path.GetRelativePath(Directory.GetCurrentDirectory(), f)}";
             try
             {
@@ -37,7 +37,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
             }
             catch (FileNotFoundException)
             {
-                context.Logger.LogWarning(
+                context.Logger?.LogWarning(
                     "Skipping file {file} because the file was not found.",
                     f
                 );

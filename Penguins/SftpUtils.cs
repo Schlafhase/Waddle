@@ -22,7 +22,7 @@ public static class SftpUtils
             && !await serverContext.SftpClient.ExistsAsync(parent.FullName, cancellationToken)
         )
         {
-            context.Logger.LogTrace("Creating remote directory {dir}", parent.FullName);
+            context.Logger?.LogTrace("Creating remote directory {dir}", parent.FullName);
             await CreateDirectoryRecursive(context, serverContext, parent.FullName, cancellationToken);
         }
         await serverContext.SftpClient.CreateDirectoryAsync(path, cancellationToken);

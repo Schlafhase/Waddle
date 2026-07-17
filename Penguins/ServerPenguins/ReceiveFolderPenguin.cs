@@ -39,7 +39,7 @@ namespace Penguins.ServerPenguins
                 }
 
                 string destinationPath = Path.GetFullPath(Path.Combine(destination, file.Name));
-                context.Logger.LogTrace(
+                context.Logger?.LogTrace(
                     "Downloading file {file} to {dest}",
                     file.FullName,
                     destinationPath

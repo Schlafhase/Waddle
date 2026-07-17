@@ -180,30 +180,31 @@ workflow.
 You can edit these in `waddle.yaml`
 
 ```cs
-required string Host;
-int Port;
-required string Username;
+public WaddleServerConfig? Server;
 
-bool UsePassword;
-string? Keyfile;
-bool UseSshAgent;
+public string? ClientOutputFileName;
 
-string? ServerOutputFileName;
-string? ClientOutputFileName;
+public string? LogFileName;
+public LogLevel LogLevel;
 
-string? LogFileName;
-LogLevel LogLevel; // Trace | Debug | Information | Warning | Error | Critical | None
+public string FinishedIcon;
+public string WaitingIcon;
+public string ErrorIcon;
+public string IgnoredIcon;
+public string NotActiveIcon;
 
-string FinishedIcon;
-string WaitingIcon;
-string ErrorIcon;
-string IgnoredIcon;
-string NotActiveIcon;
+public required string DefaultWorkflow;
 
-required string DefaultWorkflow;
+public bool VerboseErrors;
 
-bool VerboseErrors;
 ```
+
+### Server config
+
+```cs
+{serverConfigField}
+```
+
 
 ## For developers
 

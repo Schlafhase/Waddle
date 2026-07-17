@@ -56,21 +56,21 @@ public class RunCommand : AsyncCommand<RunSettings>
                 )
         );
 
-        waddleContext.Logger.LogInformation("Waddle context created. Hello World!");
+        waddleContext.Logger?.LogInformation("Waddle context created. Hello World!");
 
         // Find workflow file
         List<string> allowedFileEndings = [".w.yaml", ".w.yml", ".yaml", ".yml"];
         string workflowName = settings.Workflow != "" ? settings.Workflow : config.DefaultWorkflow;
         bool hasFileEnding = allowedFileEndings.Any(workflowName.EndsWith);
-        waddleContext.Logger.LogTrace("Finding workflow file for `{workflow}`", workflowName);
+        waddleContext.Logger?.LogTrace("Finding workflow file for `{workflow}`", workflowName);
 
         string yaml = "";
         if (hasFileEnding)
         {
-            waddleContext.Logger.LogTrace("Checking `{file}`", workflowName);
+            waddleContext.Logger?.LogTrace("Checking `{file}`", workflowName);
             if (File.Exists(workflowName))
             {
-                waddleContext.Logger.LogInformation(
+                waddleContext.Logger?.LogInformation(
                     "Using `{file}` as workflow file",
                     workflowName
                 );
@@ -81,10 +81,10 @@ public class RunCommand : AsyncCommand<RunSettings>
         {
             foreach (string ending in allowedFileEndings)
             {
-                waddleContext.Logger.LogTrace("Checking `{file}`", workflowName + ending);
+                waddleContext.Logger?.LogTrace("Checking `{file}`", workflowName + ending);
                 if (File.Exists(workflowName + ending))
                 {
-                    waddleContext.Logger.LogInformation(
+                    waddleContext.Logger?.LogInformation(
                         "Using `{file}` as workflow file",
                         workflowName + ending
                     );
@@ -111,7 +111,7 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
 
         // Parse workflow
-        waddleContext.Logger.LogInformation("Parsing workflow");
+        waddleContext.Logger?.LogInformation("Parsing workflow");
         WaddleWorkflow workflow;
 
         try
@@ -121,19 +121,19 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (Exception e)
         {
-            waddleContext.Logger.LogCritical("Failed to parse workflow: {message}", e.Message);
+            waddleContext.Logger?.LogCritical("Failed to parse workflow: {message}", e.Message);
             throw;
         }
 
         // Run Workflow
-        waddleContext.Logger.LogInformation("Sarting workflow");
+        waddleContext.Logger?.LogInformation("Sarting workflow");
         try
         {
             await WorkflowRunner.Run(workflow, waddleContext);
         }
         catch (TaskCanceledException)
         {
-            waddleContext.Logger.LogError("A penguin with ingoreError set to false timed out.");
+            waddleContext.Logger?.LogError("A penguin with ingoreError set to false timed out.");
             AnsiConsole.MarkupLine("[red]A penguin timed out[/].");
             return 1;
         }
@@ -146,7 +146,7 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (Exception e)
         {
-            waddleContext.Logger.LogError(
+            waddleContext.Logger?.LogError(
                 "An error occurred in the workflow: \n{err}",
                 e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace
             );
@@ -161,7 +161,7 @@ public class RunCommand : AsyncCommand<RunSettings>
             return 1;
         }
 
-        waddleContext.Logger.LogInformation("Exiting with code 0");
+        waddleContext.Logger?.LogInformation("Exiting with code 0");
         return 0;
     }
 }

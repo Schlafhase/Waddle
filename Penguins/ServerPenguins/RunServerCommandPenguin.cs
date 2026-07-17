@@ -28,7 +28,7 @@ public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext 
         await cmd.ExecuteAsync(cancellationToken);
 
         await serverContext.ServerOutputWriter.WriteAsync(cmd.Result);
-        context.Logger.LogTrace("Remote command output: {output}", cmd.Result);
+        context.Logger?.LogTrace("Remote command output: {output}", cmd.Result);
         Output = cmd.Result;
         ExitStatus = cmd.ExitStatus;
 

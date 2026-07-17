@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Renci.SshNet;
 using SshNet.Agent;
 
@@ -13,13 +14,13 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
     public required Stream ServerOutput;
     public readonly StreamWriter ServerOutputWriter;
 
-    private readonly WaddleContext _parent;
     private bool _connected;
+    private readonly ILogger? _logger;
 
     [SetsRequiredMembers]
     public WaddleServerContext(
         WaddleServerConfig cfg,
-        WaddleContext parent,
+        ILogger? logger,
         Func<string> getPassword,
         ILoggerFactory? loggerFactory
     )
@@ -43,16 +44,15 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
             _ => throw new NotImplementedException(),
         };
 
-        ConnectionInfo info = new(cfg.Host, cfg.Port, cfg.Username, method);
-        if (loggerFactory is not null)
+        ConnectionInfo createInfo()
         {
-            info.LoggerFactory = loggerFactory;
+            return new(cfg.Host, cfg.Port, cfg.Username, method) {LoggerFactory = loggerFactory};
         }
 
-        _parent = parent;
+        _logger = logger;
 
-        SshClient = new(info);
-        SftpClient = new(info);
+        SshClient = new(createInfo());
+        SftpClient = new(createInfo());
 
         ServerOutput = cfg.ServerOutputFileName is not null
             ? new FileStream(cfg.ServerOutputFileName, FileMode.Create)
@@ -66,11 +66,11 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
         {
             return;
         }
-        _parent.Logger.LogInformation("Connecting SSH CLient");
+        _logger?.LogInformation("Connecting SSH CLient");
         await SshClient.ConnectAsync(CancellationToken.None);
-        _parent.Logger.LogInformation("Connecting SFTP CLient");
+        _logger?.LogInformation("Connecting SFTP CLient");
         await SftpClient.ConnectAsync(CancellationToken.None);
-        _parent.Logger.LogInformation("Connection successful");
+        _logger?.LogInformation("Connection successful");
         _connected = true;
     }
 
@@ -98,4 +98,3 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
         ServerOutput.Dispose();
     }
 }
-

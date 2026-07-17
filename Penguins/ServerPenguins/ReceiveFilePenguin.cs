@@ -10,7 +10,7 @@ namespace Penguins.ServerPenguins
 
         public override async Task Execute(CancellationToken cancellationToken)
         {
-            context.Logger.LogTrace("Downloading file {file} to {dest}", Source, Destination);
+            context.Logger?.LogTrace("Downloading file {file} to {dest}", Source, Destination);
             Directory.CreateDirectory(
                 Path.GetDirectoryName(Destination)
                     ?? throw new InvalidOperationException("Invalid Destination path")

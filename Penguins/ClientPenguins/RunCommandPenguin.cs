@@ -59,7 +59,7 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase
         ExitStatus = p.ExitCode;
 
         await context.ClientOutputWriter.WriteAsync(output);
-        context.Logger.LogTrace("Local command result: {output}", output);
+        context.Logger?.LogTrace("Local command result: {output}", output);
 
         if (ExitStatus is not null && ExitStatus != 0)
         {

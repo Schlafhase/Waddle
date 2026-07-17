@@ -21,7 +21,7 @@ public static class WorkflowRunner
 
         List<IPenguin> penguins = [];
 
-        context.Logger.LogInformation("Converting raw WorkflowPenguins to IPenguin");
+        context.Logger?.LogInformation("Converting raw WorkflowPenguins to IPenguin");
         foreach (WorkflowPenguin wp in workflow.WorkflowPenguins)
         {
             IPenguin p = wp switch
@@ -74,7 +74,7 @@ public static class WorkflowRunner
                     },
                 _ => throw new ArgumentException("The workflow contains invalid penguins"),
             };
-            context.Logger.LogDebug("Created IPenguin {name}", p.Name);
+            context.Logger?.LogDebug("Created IPenguin {name}", p.Name);
             p.TimeoutMs = wp.TimeoutMs;
             p.IgnoreError = wp.IgnoreError;
             penguins.Add(p);
@@ -89,9 +89,9 @@ public static class WorkflowRunner
         int error = -1;
         WaddleConfig cfg = context.Config;
 
-        Tree getTree(int currentIndex)
+        Tree getUI(int currentIndex)
         {
-            context.Logger.LogDebug("Rebuilding CLI tree");
+            context.Logger?.LogDebug("Rebuilding CLI tree");
             bool finished = currentIndex == penguins.Count;
             string masterColor;
             string masterSuffix;
@@ -155,17 +155,19 @@ public static class WorkflowRunner
 
                 t.AddNode($"[{color}]{p.Name} {suffix}[/]");
             }
+            context.Logger?.LogDebug("Rebuilt tree");
             return t;
         }
-        Tree t = getTree(0);
+        Tree ui = getUI(0);
 
         await AnsiConsole
-            .Live(t)
+            .Live(ui)
             .StartAsync(async ctx =>
             {
                 for (int i = 0; i < penguins.Count; i++)
                 {
-                    context.OnStatusChange = () => ctx.UpdateTarget(getTree(i));
+                    context.Logger?.LogTrace("Entering new workflow penguin");
+                    context.OnStatusChange = () => ctx.UpdateTarget(getUI(i));
                     IPenguin p = penguins[i];
                     using CancellationTokenSource tokenSource = p.TimeoutMs is { } timeout
                         ? new CancellationTokenSource(TimeSpan.FromMilliseconds(timeout))
@@ -173,7 +175,7 @@ public static class WorkflowRunner
 
                     try
                     {
-                        context.Logger.LogInformation("Running {name}", p.Name);
+                        context.Logger?.LogInformation("Running {name}", p.Name);
                         await p.Execute(tokenSource.Token);
                     }
                     catch (Exception e)
@@ -184,22 +186,21 @@ public static class WorkflowRunner
                         if (!p.IgnoreError)
                         {
                             error = i;
-                            ctx.UpdateTarget(getTree(i));
+                            ctx.UpdateTarget(getUI(i));
                             throw;
                         }
-                        context.Logger.LogWarning(
+                        context.Logger?.LogWarning(
                             "Ignored error while running {name}: {err}",
                             p.Name,
                             e.Message
                         );
                         ignoredErrors.Add(i, message.Replace("\n", " "));
-                        ctx.UpdateTarget(getTree(i + 1));
+                        ctx.UpdateTarget(getUI(i + 1));
                     }
 
-                    ctx.UpdateTarget(getTree(i + 1));
+                    ctx.UpdateTarget(getUI(i + 1));
                 }
                 context.OnStatusChange = null;
-            })
-            .Spinner();
+            });
     }
 }
