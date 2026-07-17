@@ -284,3 +284,4 @@ that need client/server interaction will use these technologies.
 - `waddle new` command to add a workflow
 - Run waddle workflows from the directory of the workflow to prevent unexpected
   behaviour
+- UI element that shows output
