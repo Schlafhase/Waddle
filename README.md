@@ -180,8 +180,6 @@ workflow.
 You can edit these in `waddle.yaml`
 
 ```cs
-const string Version = "0.3";
-
 required string Host;
 int Port;
 required string Username;
@@ -194,7 +192,7 @@ string? ServerOutputFileName;
 string? ClientOutputFileName;
 
 string? LogFileName;
-LogLevel LogLevel;
+LogLevel LogLevel; // Trace | Debug | Information | Warning | Error | Critical | None
 
 string FinishedIcon;
 string WaitingIcon;

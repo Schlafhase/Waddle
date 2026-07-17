@@ -97,13 +97,13 @@ public class RunCommand : AsyncCommand<RunSettings>
             if (hasFileEnding)
             {
                 AnsiConsole.MarkupLineInterpolated(
-                    $"[red]The requested workflow [blue]{workflowName}[/] doesn't exist. Create a file named [blue]{workflowName}[/] to create it.[/]"
+                    $"[red]The requested workflow [blue]{workflowName}[/] is empty or doesn't exist. Create a file named [blue]{workflowName}[/] to create it.[/]"
                 );
             }
             else
             {
                 AnsiConsole.MarkupLineInterpolated(
-                    $"[red]The requested workflow [blue]{workflowName}[/] doesn't exist. Create a file named [blue]{workflowName}.yaml[/] or [blue]{workflowName}.yml[/] to create it. You can also name the file [blue]{workflowName}.w.yaml[/] or [blue]{workflowName}.w.yml[/] to avoid conflicts with other tools.[/]"
+                    $"[red]The requested workflow [blue]{workflowName}[/] is empty or doesn't exist. Create a file named [blue]{workflowName}.yaml[/] or [blue]{workflowName}.yml[/] to create it. You can also name the file [blue]{workflowName}.w.yaml[/] or [blue]{workflowName}.w.yml[/] to avoid conflicts with other tools.[/]"
                 );
             }
             return 1;

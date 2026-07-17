@@ -1,4 +1,7 @@
 using System.Reflection;
+
+using Microsoft.Extensions.Logging;
+
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Waddle.Config;
@@ -79,7 +82,7 @@ public class InitCommand : Command
 
         FigletText title = new FigletText(font, "Waddle").Color(Color.Yellow);
         AnsiConsole.Write(title);
-        AnsiConsole.MarkupLine($"[dim]Waddle version {WaddleConfig.Version}[/]");
+        AnsiConsole.MarkupLine($"[dim]Waddle version {WaddleContext.Version}[/]");
 
         AnsiConsole.MarkupLine(
             "[italic]Waddle needs some information to create a working configuration[/]"
@@ -163,13 +166,9 @@ public class InitCommand : Command
                 );
                 break;
             case "Private key":
-                cfg.Keyfile = Path.GetFullPath(
-                    AnsiConsole
-                        .Ask(
-                            "[dim]Path to the[/] [green]File containing the key[/][dim]:[/]",
-                            "~/.ssh/id_ed25519"
-                        )
-                        .Replace("~", $"/home/{Environment.UserName}")
+                cfg.Keyfile = AnsiConsole.Ask(
+                    "[dim]Path to the[/] [green]File containing the key[/][dim]:[/]",
+                    "~/.ssh/id_ed25519"
                 );
                 break;
             case "SSH Agent":
@@ -194,10 +193,6 @@ public class InitCommand : Command
         {
             cfg.ServerOutputFileName = null;
         }
-        else
-        {
-            cfg.ServerOutputFileName = Path.GetFullPath(cfg.ServerOutputFileName);
-        }
 
         AnsiConsole.MarkupLineInterpolated(
             $"[green]Server output[/] [dim]goes to: [blue]{cfg.ServerOutputFileName ?? "Memory"}[/][/]"
@@ -215,7 +210,7 @@ public class InitCommand : Command
                     {
                         string trimmed = input.Trim();
 
-                        if (string.IsNullOrWhiteSpace(trimmed))
+                        if (cfg.ServerOutputFileName is null || string.IsNullOrWhiteSpace(trimmed))
                         {
                             cfg.ClientOutputFileName = null;
                             return ValidationResult.Success();
@@ -223,7 +218,7 @@ public class InitCommand : Command
                         else
                         {
                             string fullPath = Path.GetFullPath(trimmed);
-                            return fullPath == cfg.ServerOutputFileName
+                            return fullPath == Path.GetFullPath(cfg.ServerOutputFileName)
                                 ? ValidationResult.Error(
                                     "Client output can't be the same as server output."
                                 )
@@ -236,10 +231,6 @@ public class InitCommand : Command
         if (string.IsNullOrWhiteSpace(cfg.ClientOutputFileName))
         {
             cfg.ClientOutputFileName = null;
-        }
-        else
-        {
-            cfg.ClientOutputFileName = Path.GetFullPath(cfg.ClientOutputFileName);
         }
 
         AnsiConsole.MarkupLineInterpolated(
@@ -275,6 +266,8 @@ public class InitCommand : Command
             cfg.NotActiveIcon = ":zzz:";
             cfg.IgnoredIcon = ":minus: [italic dim]Ignored Error[/]";
         }
+
+        cfg.LogLevel = LogLevel.Information;
 
         File.WriteAllText("waddle.yaml", cfg.ToYaml());
 

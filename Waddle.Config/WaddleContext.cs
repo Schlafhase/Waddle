@@ -8,6 +8,8 @@ namespace Waddle.Config;
 
 public sealed class WaddleContext : IAsyncDisposable, IDisposable
 {
+    public const string Version = "0.3.1";
+
     public required WaddleConfig Config;
 
     public required SshClient SshClient;
@@ -40,9 +42,9 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
         AuthenticationMethod method = cfg switch
         {
             { UsePassword: true } => new PasswordAuthenticationMethod(cfg.Username, getPassword()),
-            { Keyfile: not null } => new PrivateKeyAuthenticationMethod(
+            { KeyfileFullPath: not null } => new PrivateKeyAuthenticationMethod(
                 cfg.Username,
-                new PrivateKeyFile(cfg.Keyfile)
+                new PrivateKeyFile(cfg.KeyfileFullPath)
             ),
             { UseSshAgent: true } => new PrivateKeyAuthenticationMethod(
                 cfg.Username,

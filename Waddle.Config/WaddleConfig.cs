@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using Renci.SshNet.Security;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -7,8 +6,6 @@ namespace Waddle.Config;
 
 public struct WaddleConfig
 {
-    public const string Version = "0.3.1";
-
     public required string Host;
     public int Port;
     public required string Username;
@@ -32,6 +29,16 @@ public struct WaddleConfig
     public required string DefaultWorkflow;
 
     public bool VerboseErrors;
+
+    [YamlIgnore]
+    public readonly string? KeyfileFullPath =>
+        Keyfile is null
+            ? null
+            : Path.GetFullPath(
+                Keyfile.StartsWith("~/")
+                    ? "/home/" + Environment.UserName + "/" + Keyfile[2..]
+                    : Keyfile
+            );
 
     /// <summary>
     /// Validates a config object by checking if all required fields are set.
