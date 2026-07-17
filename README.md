@@ -196,15 +196,21 @@ public string NotActiveIcon;
 public required string DefaultWorkflow;
 
 public bool VerboseErrors;
-
 ```
 
 ### Server config
 
 ```cs
-{serverConfigField}
-```
+public required string Host;
+public int Port;
+public required string Username;
 
+public bool UsePassword;
+public string? Keyfile;
+public bool UseSshAgent;
+
+public string? ServerOutputFileName;
+```
 
 ## For developers
 
@@ -273,7 +279,7 @@ that need client/server interaction will use these technologies.
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
-- Add client-only workflows *(Implemented but not thoroughly tested)*
+- Add client-only workflows _(Implemented but not thoroughly tested)_
 - Workflow variables
 - `waddle new` command to add a workflow
 - Run waddle workflows from the directory of the workflow to prevent unexpected

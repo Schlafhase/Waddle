@@ -31,11 +31,19 @@ return 0;
 
 static string removeIndentation(string text)
 {
-    IEnumerable<string> lines = text.ReplaceLineEndings("\n")
-        .Split('\n')
-        .Select(line => line.Trim());
+    List<string> lines =
+    [
+        .. text.ReplaceLineEndings("\n")
+            .Split('\n')
+            .Select(line => line.Trim())
+            .SkipWhile(string.IsNullOrWhiteSpace),
+    ];
 
-    return string.Join(Environment.NewLine, lines);
+    int end;
+    for (end = lines.Count; end > 0 && string.IsNullOrWhiteSpace(lines[end - 1]); end--)
+        ;
+
+    return string.Join(Environment.NewLine, lines.Take(end));
 }
 
 static async Task<string> getRegion(string file, string region)
