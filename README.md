@@ -15,6 +15,7 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 # Table of Contents
 
 - [Quick Start](#quick-start)
+  - [How to clean up](#how-to-clean-up)
 - [Installation](#installation)
   - [Using dotnet tools](#using-dotnet-tools)
   - [Manual installation](#manual-installation)
@@ -31,16 +32,47 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 
 ## Quick Start
 
-**Requirements:** Docker, .NET SDK, wget, sh
+**Requirements:** Docker, .NET SDK
 
 If you just want to try the project temporarily follow these instructions in any
 directory:
 
 ```sh
-# This will install the dotnet tool, spin up a docker container and run a test waddle workflow
-wget https://raw.githubusercontent.com/Schlafhase/Waddle/refs/heads/master/test_setup.sh && chmod +x ./test_setup.sh && ./test_setup.sh
-# This will clean everything up
-./waddle-tmp/uninstall_test_setup.sh
+# Clone the whole repository because it contains a test workflow
+git clone https://github.com/Schlafhase/Waddle
+cd Waddle
+dotnet tool install -g Waddle.Cli
+# Create and start docker container
+./TestServer/start.sh
+```
+
+Now you can start playing around:
+
+> [!NOTE]
+>
+> The credentials for the docker container are
+>
+> - **Host:** localhost
+> - **Username:** root
+> - **Port:** 2222
+> - **Password:** Docker!
+
+```sh
+waddle init
+# Run test workflow
+waddle Waddle.Cli/test
+```
+
+### How to clean up
+
+```sh
+# Remove the docker container
+docker rm -f waddle-test-server
+# Uninstall the tool
+dotnet uninstall -g Waddle.Cli
+# Remove directory
+cd ..
+rm -rf ./Waddle/
 ```
 
 ## Installation
@@ -238,10 +270,12 @@ that need client/server interaction will use these technologies.
 
 ## Planned features
 
+- Unit tests
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows
 - Workflow variables
 - `waddle new` command to add a workflow
-- Run waddle workflows from the directory of the workflow to prevent unexpected behaviour
+- Run waddle workflows from the directory of the workflow to prevent unexpected
+  behaviour
