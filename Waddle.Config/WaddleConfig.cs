@@ -4,9 +4,8 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Waddle.Config;
 
-public struct WaddleConfig
+public struct WaddleServerConfig
 {
-#region ConfigFields
     public required string Host;
     public int Port;
     public required string Username;
@@ -16,21 +15,6 @@ public struct WaddleConfig
     public bool UseSshAgent;
 
     public string? ServerOutputFileName;
-    public string? ClientOutputFileName;
-
-    public string? LogFileName;
-    public LogLevel LogLevel;
-
-    public string FinishedIcon;
-    public string WaitingIcon;
-    public string ErrorIcon;
-    public string IgnoredIcon;
-    public string NotActiveIcon;
-
-    public required string DefaultWorkflow;
-
-    public bool VerboseErrors;
-#endregion
 
     [YamlIgnore]
     public readonly string? KeyfileFullPath =>
@@ -61,6 +45,40 @@ public struct WaddleConfig
         {
             unset.Add($"One of {nameof(UsePassword)}, {nameof(Keyfile)} or {nameof(UseSshAgent)}");
         }
+        return unset;
+    }
+}
+
+public struct WaddleConfig
+{
+    #region ConfigFields
+    public WaddleServerConfig? Server;
+
+    public string? ClientOutputFileName;
+
+    public string? LogFileName;
+    public LogLevel LogLevel;
+
+    public string FinishedIcon;
+    public string WaitingIcon;
+    public string ErrorIcon;
+    public string IgnoredIcon;
+    public string NotActiveIcon;
+
+    public required string DefaultWorkflow;
+
+    public bool VerboseErrors;
+    #endregion
+
+
+    /// <summary>
+    /// Validates a config object by checking if all required fields are set.
+    /// </summary>
+    /// <returns>A list of Fieldnames that haven't been set</returns>
+    public readonly List<string> Validate()
+    {
+        List<string> unset = [];
+        unset.AddRange(Server?.Validate().Select(field => nameof(Server) + "." + field) ?? []);
         if (string.IsNullOrWhiteSpace(DefaultWorkflow))
         {
             unset.Add(nameof(DefaultWorkflow));

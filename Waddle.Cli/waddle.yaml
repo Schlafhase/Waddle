@@ -1,12 +1,5 @@
-Host: localhost
-Port: 2222
-Username: root
-UsePassword: false
-Keyfile: ~/.ssh/id_ed25519
-UseSshAgent: false
-ServerOutputFileName: ./output.txt
-ClientOutputFileName: ./coutput.txt
-LogFileName:
+ClientOutputFileName: coutput.txt
+LogFileName: 
 LogLevel: Information
 FinishedIcon: "\U000F05E0 [italic dim]Success[/]"
 WaitingIcon: "\U000F051A [italic dim]Working[/]"

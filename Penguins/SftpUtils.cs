@@ -7,23 +7,24 @@ public static class SftpUtils
 {
     public static async Task CreateDirectoryRecursive(
         WaddleContext context,
+        WaddleServerContext serverContext,
         string path,
         CancellationToken cancellationToken
     )
     {
-        if (await context.SftpClient.ExistsAsync(path, cancellationToken))
+        if (await serverContext.SftpClient.ExistsAsync(path, cancellationToken))
         {
             return;
         }
         DirectoryInfo? parent = Directory.GetParent(path);
         if (
             parent is not null
-            && !await context.SftpClient.ExistsAsync(parent.FullName, cancellationToken)
+            && !await serverContext.SftpClient.ExistsAsync(parent.FullName, cancellationToken)
         )
         {
             context.Logger.LogTrace("Creating remote directory {dir}", parent.FullName);
-            await CreateDirectoryRecursive(context, parent.FullName, cancellationToken);
+            await CreateDirectoryRecursive(context, serverContext, parent.FullName, cancellationToken);
         }
-        await context.SftpClient.CreateDirectoryAsync(path, cancellationToken);
+        await serverContext.SftpClient.CreateDirectoryAsync(path, cancellationToken);
     }
 }

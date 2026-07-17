@@ -4,7 +4,7 @@ using Waddle.Config;
 
 namespace Penguins.ServerPenguins
 {
-    public class ReceiveFolderPenguin(WaddleContext context) : PenguinBase
+    public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext serverContext) : PenguinBase
     {
         public required string Source;
         public required string Destination;
@@ -21,7 +21,7 @@ namespace Penguins.ServerPenguins
         )
         {
             await foreach (
-                ISftpFile file in context.SftpClient.ListDirectoryAsync(source, cancellationToken)
+                ISftpFile file in serverContext.SftpClient.ListDirectoryAsync(source, cancellationToken)
             )
             {
                 if (file.Name is "." or "..")
@@ -48,7 +48,7 @@ namespace Penguins.ServerPenguins
                 Directory.CreateDirectory(destination);
                 File.Delete(destinationPath);
                 await using FileStream fs = File.OpenWrite(destinationPath);
-                await context.SftpClient.DownloadFileAsync(file.FullName, fs, cancellationToken);
+                await serverContext.SftpClient.DownloadFileAsync(file.FullName, fs, cancellationToken);
             }
         }
     }

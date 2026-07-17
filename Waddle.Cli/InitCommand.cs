@@ -1,7 +1,5 @@
 using System.Reflection;
-
 using Microsoft.Extensions.Logging;
-
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Waddle.Config;
@@ -14,12 +12,7 @@ public class InitCommand : Command
     {
         bool existing = false;
         // Set required fields so the compiler doesn't complain
-        WaddleConfig existingCfg = new()
-        {
-            Host = "",
-            Username = "",
-            DefaultWorkflow = "",
-        };
+        WaddleConfig existingCfg = new() { DefaultWorkflow = "" };
 
         if (File.Exists("waddle.yaml"))
         {
@@ -89,45 +82,31 @@ public class InitCommand : Command
         );
         AnsiConsole.WriteLine();
 
-        WaddleConfig cfg = new()
+        WaddleConfig cfg = new() { DefaultWorkflow = "deploy" };
+
+        if (!AnsiConsole.Confirm("[dim]Do you want to [blue]connect a nest[/] (server)?[/]", true))
         {
-            Host = "",
-            Username = "",
-            DefaultWorkflow = "deploy",
-        };
+            goto client;
+        }
+
+        WaddleServerConfig serverConfig = new() { Host = "", Username = "" };
 
         // Hostname
-        if (existing)
-        {
-            cfg.Host = AnsiConsole.Ask(
-                "[green]Hostname[/][dim] of your nest (server):[/]",
-                existingCfg.Host
-            );
-        }
-        else
-        {
-            cfg.Host = AnsiConsole.Ask<string>("[green]Hostname[/][dim] of your nest (server):[/]");
-        }
+        serverConfig.Host = ask(
+            "[green]Hostname[/][dim] of your nest:[/]",
+            existingCfg.Server?.Host
+        );
 
         // Username
-        if (existing)
-        {
-            cfg.Username = AnsiConsole.Ask(
-                "[dim]Your[/] [green]Username[/][dim] on your nest:[/]",
-                existingCfg.Username
-            );
-        }
-        else
-        {
-            cfg.Username = AnsiConsole.Ask<string>(
-                "[dim]Your[/] [green]Username[/][dim] on your nest:[/]"
-            );
-        }
+        serverConfig.Username = ask(
+            "[dim]Your[/] [green]Username[/][dim] on your nest:[/]",
+            existingCfg.Server?.Username
+        );
 
         // Port
-        cfg.Port = AnsiConsole.Ask(
+        serverConfig.Port = ask(
             "[green]SSH port[/] [dim]on your nest (probably 22):[/]",
-            existing ? existingCfg.Port : 22
+            existing ? (existingCfg.Server?.Port ?? 22) : 22
         );
 
         // Auth method
@@ -135,17 +114,17 @@ public class InitCommand : Command
             .Title("[dim]What[/] [green]Authentication method[/] [dim]would you like to use?[/]")
             .AddChoices("Password", "Private key", "SSH Agent");
 
-        if (existing)
+        if (existing && existingCfg.Server is { } existingServerConfig)
         {
-            if (existingCfg.UsePassword)
+            if (existingServerConfig.UsePassword)
             {
                 authPrompt = authPrompt.DefaultValue("Password");
             }
-            else if (existingCfg.Keyfile is not null)
+            else if (existingServerConfig.Keyfile is not null)
             {
                 authPrompt = authPrompt.DefaultValue("Private key");
             }
-            else if (existingCfg.UseSshAgent)
+            else if (existingServerConfig.UseSshAgent)
             {
                 authPrompt = authPrompt.DefaultValue("SSH Agent");
             }
@@ -160,44 +139,47 @@ public class InitCommand : Command
         switch (authMethod)
         {
             case "Password":
-                cfg.UsePassword = true;
+                serverConfig.UsePassword = true;
                 AnsiConsole.MarkupLine(
                     "[italic]You will be prompted for the password when it's needed.[/]"
                 );
                 break;
             case "Private key":
-                cfg.Keyfile = AnsiConsole.Ask(
+                serverConfig.Keyfile = AnsiConsole.Ask(
                     "[dim]Path to the[/] [green]File containing the key[/][dim]:[/]",
                     "~/.ssh/id_ed25519"
                 );
                 break;
             case "SSH Agent":
-                cfg.UseSshAgent = true;
+                serverConfig.UseSshAgent = true;
                 break;
             default:
                 throw new NotImplementedException("Invalid Authentication method");
         }
 
         // Server Output
-        cfg.ServerOutputFileName = AnsiConsole
+        serverConfig.ServerOutputFileName = AnsiConsole
             .Prompt(
-                new TextPrompt<string>(
-                    "[dim]Filename to store[/] [green]Output from the server[/][dim] (leave empty to keep output in memory):[/]"
-                )
-                    .DefaultValue(existingCfg.ServerOutputFileName ?? "")
+                prompt(
+                        "[dim]Filename to store[/] [green]Output from the server[/][dim] (leave empty to keep output in memory):[/]",
+                        existingCfg.Server?.ServerOutputFileName
+                    )
                     .AllowEmpty()
             )
             .Trim();
 
-        if (string.IsNullOrWhiteSpace(cfg.ServerOutputFileName))
+        if (string.IsNullOrWhiteSpace(serverConfig.ServerOutputFileName))
         {
-            cfg.ServerOutputFileName = null;
+            serverConfig.ServerOutputFileName = null;
         }
 
         AnsiConsole.MarkupLineInterpolated(
-            $"[green]Server output[/] [dim]goes to: [blue]{cfg.ServerOutputFileName ?? "Memory"}[/][/]"
+            $"[green]Server output[/] [dim]goes to: [blue]{serverConfig.ServerOutputFileName ?? "Memory"}[/][/]"
         );
 
+        cfg.Server = serverConfig;
+
+        client:
         // Client output
         cfg.ClientOutputFileName = AnsiConsole
             .Prompt(
@@ -210,7 +192,10 @@ public class InitCommand : Command
                     {
                         string trimmed = input.Trim();
 
-                        if (cfg.ServerOutputFileName is null || string.IsNullOrWhiteSpace(trimmed))
+                        if (
+                            cfg.Server?.ServerOutputFileName is null
+                            || string.IsNullOrWhiteSpace(trimmed)
+                        )
                         {
                             cfg.ClientOutputFileName = null;
                             return ValidationResult.Success();
@@ -218,7 +203,7 @@ public class InitCommand : Command
                         else
                         {
                             string fullPath = Path.GetFullPath(trimmed);
-                            return fullPath == Path.GetFullPath(cfg.ServerOutputFileName)
+                            return fullPath == Path.GetFullPath(((WaddleServerConfig)cfg.Server).ServerOutputFileName)
                                 ? ValidationResult.Error(
                                     "Client output can't be the same as server output."
                                 )
@@ -277,5 +262,21 @@ public class InitCommand : Command
         );
 
         return 0;
+    }
+
+    private static T ask<T>(string prompt, T? defaultValue)
+    {
+        if (defaultValue is { } defaultValueNotNull)
+        {
+            return AnsiConsole.Ask(prompt, defaultValueNotNull);
+        }
+
+        return AnsiConsole.Ask<T>(prompt);
+    }
+
+    private static TextPrompt<T> prompt<T>(string prompt, T? defaultValue)
+    {
+        TextPrompt<T> p = new TextPrompt<T>(prompt);
+        return defaultValue is { } defaultValueNotNull ? p.DefaultValue(defaultValueNotNull) : p;
     }
 }

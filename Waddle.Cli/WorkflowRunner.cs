@@ -1,7 +1,7 @@
-using System.Data;
 using Microsoft.Extensions.Logging;
 using Penguins;
 using Penguins.ClientPenguins;
+using Penguins.Exceptions;
 using Penguins.ServerPenguins;
 using Spectre.Console;
 using Waddle.Config;
@@ -12,6 +12,13 @@ public static class WorkflowRunner
 {
     public static async Task Run(WaddleWorkflow workflow, WaddleContext context)
     {
+        WaddleServerContext getServerContextOrThrow()
+        {
+            return context.Server
+                ?? throw new MissingServerConfigException(
+                );
+        }
+
         List<IPenguin> penguins = [];
 
         context.Logger.LogInformation("Converting raw WorkflowPenguins to IPenguin");
@@ -25,14 +32,17 @@ public static class WorkflowRunner
                     Command = cmd,
                 },
 
-                { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(context)
+                { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(
+                    context,
+                    getServerContextOrThrow()
+                )
                 {
                     Name = wp.Name,
                     Command = serverCmd,
                 },
 
                 { ReceiveFolder: { } receiveFolder, Destination: { } destination } =>
-                    new ReceiveFolderPenguin(context)
+                    new ReceiveFolderPenguin(context, getServerContextOrThrow())
                     {
                         Name = wp.Name,
                         Source = receiveFolder,
@@ -40,14 +50,15 @@ public static class WorkflowRunner
                     },
 
                 { SendFolder: { } sendFolder, Destination: { } destination } =>
-                    new SendFolderPenguin(context)
+                    new SendFolderPenguin(context, getServerContextOrThrow())
                     {
                         Name = wp.Name,
                         Source = sendFolder,
                         Destination = destination,
                     },
                 { SendFile: { } sendFile, Destination: { } destination } => new SendFilePenguin(
-                    context
+                    context,
+                    getServerContextOrThrow()
                 )
                 {
                     Name = wp.Name,
@@ -55,7 +66,7 @@ public static class WorkflowRunner
                     Destination = destination,
                 },
                 { ReceiveFile: { } receiveFile, Destination: { } destination } =>
-                    new ReceiveFilePenguin(context)
+                    new ReceiveFilePenguin(context, getServerContextOrThrow())
                     {
                         Name = wp.Name,
                         Source = receiveFile,

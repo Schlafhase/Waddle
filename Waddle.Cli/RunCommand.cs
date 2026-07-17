@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
+using Penguins.Exceptions;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Waddle.Config;
@@ -120,19 +121,20 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (Exception e)
         {
-#pragma warning disable CA1873 // Avoid potentially expensive logging
             waddleContext.Logger.LogCritical("Failed to parse workflow: {message}", e.Message);
-#pragma warning restore CA1873 // Avoid potentially expensive logging
             throw;
         }
 
         // Connect
+        if (waddleContext.Server is { } server)
+        {
         waddleContext.Logger.LogInformation("Establishing SSH connection");
         await AnsiConsole
             .Status()
-            .StartAsync("[yellow]Connecting[/]", async _ => await waddleContext.Initialise());
+            .StartAsync("[yellow]Connecting[/]", async _ => await server.Connect());
         AnsiConsole.MarkupLine($"[green]Connected {config.FinishedIcon}[/]");
         waddleContext.Logger.LogInformation("SSH Connected");
+        }
 
         // Run Workflow
         waddleContext.Logger.LogInformation("Sarting workflow");
@@ -144,6 +146,13 @@ public class RunCommand : AsyncCommand<RunSettings>
         {
             waddleContext.Logger.LogError("A penguin with ingoreError set to false timed out.");
             AnsiConsole.MarkupLine("[red]A penguin timed out[/].");
+            return 1;
+        }
+        catch (MissingServerConfigException)
+        {
+            AnsiConsole.MarkupLine(
+                "[red]You are trying to use server penguins but your configuration doesn't support them. Please add server configuration to [blue]waddle.yaml[/] or add them using [blue]waddle init[/].[/]"
+            );
             return 1;
         }
         catch (Exception e)

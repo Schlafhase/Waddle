@@ -3,7 +3,7 @@ using Waddle.Config;
 
 namespace Penguins.ServerPenguins
 {
-    public class ReceiveFilePenguin(WaddleContext context) : PenguinBase
+    public class ReceiveFilePenguin(WaddleContext context, WaddleServerContext serverContext) : PenguinBase
     {
         public required string Source;
         public required string Destination;
@@ -17,7 +17,7 @@ namespace Penguins.ServerPenguins
             );
             File.Delete(Destination);
             await using FileStream fs = File.OpenWrite(Destination);
-            await context.SftpClient.DownloadFileAsync(Source, fs, cancellationToken);
+            await serverContext.SftpClient.DownloadFileAsync(Source, fs, cancellationToken);
         }
     }
 }

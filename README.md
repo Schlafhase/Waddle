@@ -272,7 +272,7 @@ that need client/server interaction will use these technologies.
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
-- Add client-only workflows
+- Add client-only workflows *(Implemented but not thoroughly tested)*
 - Workflow variables
 - `waddle new` command to add a workflow
 - Run waddle workflows from the directory of the workflow to prevent unexpected
