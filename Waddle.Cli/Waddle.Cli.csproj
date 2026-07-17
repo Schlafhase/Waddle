@@ -8,7 +8,7 @@
     <ToolCommandName>waddle</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <PackageId>Waddle.Cli</PackageId>
-    <Version>0.4.0</Version>
+    <Version>0.4.1</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <Description>Automation tool for client/server interactions</Description>
