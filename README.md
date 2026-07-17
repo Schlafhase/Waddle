@@ -242,3 +242,5 @@ that need client/server interaction will use these technologies.
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows
+- Workflow variables
+- `waddle new` command to add a workflow
