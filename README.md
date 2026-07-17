@@ -204,7 +204,7 @@ Then use these values in your `waddle.yaml`:
 # ...
 Host: localhost
 Username: root
-Port: 22
+Port: 2222
 # Keyfile: ~/.ssh/id_ed25519 # If you copied your public key before building the docker image
 # UsePassword: true # If you didn't copy the public key
 # ...
