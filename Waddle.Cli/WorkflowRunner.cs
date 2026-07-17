@@ -91,7 +91,6 @@ public static class WorkflowRunner
 
         Tree getUI(int currentIndex)
         {
-            context.Logger?.LogDebug("Rebuilding CLI tree");
             bool finished = currentIndex == penguins.Count;
             string masterColor;
             string masterSuffix;
@@ -155,7 +154,6 @@ public static class WorkflowRunner
 
                 t.AddNode($"[{color}]{p.Name} {suffix}[/]");
             }
-            context.Logger?.LogDebug("Rebuilt tree");
             return t;
         }
         Tree ui = getUI(0);

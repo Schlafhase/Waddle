@@ -15,6 +15,18 @@ replacements.Add(
     "{serverConfigFields}",
     await getRegion("./Waddle.Config/WaddleConfig.cs", "ServerConfigFields")
 );
+replacements.Add(
+    "{nixPackage}",
+    """
+        (buildDotnetGlobalTool {
+          pname = "waddle";
+          nugetName = "Waddle.Cli";
+          version = "0.4.1";
+          nugetHash = "sha256-tACHDgvmmXZNwDn7qgcv+iCle1X154HrekdV8KQ7jiQ=";
+          dotnet-sdk = pkgs.dotnetCorePackages.sdk_10_0;
+        })
+    """
+);
 
 foreach (KeyValuePair<string, string> kvp in replacements)
 {

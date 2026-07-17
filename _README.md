@@ -88,6 +88,24 @@ command:
 dotnet tool install -g Waddle.Cli
 ```
 
+#### On NixOS
+
+```nix
+environment.systemPackages = [
+    # ...
+{nixPackage}
+];
+```
+
+Or with home manager:
+
+```nix
+home.packages = [
+    # ...
+{nixPackage}
+];
+```
+
 ### Manual installation
 
 > [!NOTE]

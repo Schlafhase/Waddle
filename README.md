@@ -1,4 +1,3 @@
-
 <!-- GENERATED FILE. DO NOT EDIT -->
 
 # Waddle: Penguins with packets 📦🐧
@@ -87,6 +86,36 @@ command:
 
 ```sh
 dotnet tool install -g Waddle.Cli
+```
+
+#### On NixOS
+
+```nix
+environment.systemPackages = [
+    # ...
+    (buildDotnetGlobalTool {
+      pname = "waddle";
+      nugetName = "Waddle.Cli";
+      version = "0.4.1";
+      nugetHash = "sha256-tACHDgvmmXZNwDn7qgcv+iCle1X154HrekdV8KQ7jiQ=";
+      dotnet-sdk = pkgs.dotnetCorePackages.sdk_10_0;
+    })
+];
+```
+
+Or with home manager:
+
+```nix
+home.packages = [
+    # ...
+    (buildDotnetGlobalTool {
+      pname = "waddle";
+      nugetName = "Waddle.Cli";
+      version = "0.4.1";
+      nugetHash = "sha256-tACHDgvmmXZNwDn7qgcv+iCle1X154HrekdV8KQ7jiQ=";
+      dotnet-sdk = pkgs.dotnetCorePackages.sdk_10_0;
+    })
+];
 ```
 
 ### Manual installation
@@ -279,6 +308,7 @@ that need client/server interaction will use these technologies.
 ## Planned features
 
 - Unit tests
+- Check fingerprint
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
