@@ -244,3 +244,4 @@ that need client/server interaction will use these technologies.
 - Add client-only workflows
 - Workflow variables
 - `waddle new` command to add a workflow
+- Run waddle workflows from the directory of the workflow to prevent unexpected behaviour
