@@ -51,9 +51,7 @@ public class RunCommand : AsyncCommand<RunSettings>
         await using WaddleContext waddleContext = new(
             config,
             getPassword: () =>
-                AnsiConsole.Ask<string>(
-                    "[yellow]Please enter your password for the remote host:[/]"
-                )
+            AnsiConsole.Prompt(new TextPrompt<string>("[yellow]Please enter your password for the remote host:[/]").Secret())
         );
 
         waddleContext.Logger?.LogInformation("Waddle context created. Hello World!");
