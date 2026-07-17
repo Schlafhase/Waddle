@@ -12,11 +12,11 @@ public static class WorkflowRunner
 {
     public static async Task Run(WaddleWorkflow workflow, WaddleContext context)
     {
+        bool containsServerPenguins = false;
         WaddleServerContext getServerContextOrThrow()
         {
-            return context.Server
-                ?? throw new MissingServerConfigException(
-                );
+            containsServerPenguins = true;
+            return context.Server ?? throw new MissingServerConfigException();
         }
 
         List<IPenguin> penguins = [];
@@ -78,6 +78,11 @@ public static class WorkflowRunner
             p.TimeoutMs = wp.TimeoutMs;
             p.IgnoreError = wp.IgnoreError;
             penguins.Add(p);
+        }
+
+        if (containsServerPenguins)
+        {
+            await getServerContextOrThrow().Connect();
         }
 
         Dictionary<int, string> ignoredErrors = [];
