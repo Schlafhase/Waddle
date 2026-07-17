@@ -125,17 +125,6 @@ public class RunCommand : AsyncCommand<RunSettings>
             throw;
         }
 
-        // Connect
-        if (waddleContext.Server is { } server)
-        {
-        waddleContext.Logger.LogInformation("Establishing SSH connection");
-        await AnsiConsole
-            .Status()
-            .StartAsync("[yellow]Connecting[/]", async _ => await server.Connect());
-        AnsiConsole.MarkupLine($"[green]Connected {config.FinishedIcon}[/]");
-        waddleContext.Logger.LogInformation("SSH Connected");
-        }
-
         // Run Workflow
         waddleContext.Logger.LogInformation("Sarting workflow");
         try
@@ -151,7 +140,7 @@ public class RunCommand : AsyncCommand<RunSettings>
         catch (MissingServerConfigException)
         {
             AnsiConsole.MarkupLine(
-                "[red]You are trying to use server penguins but your configuration doesn't support them. Please add server configuration to [blue]waddle.yaml[/] or add them using [blue]waddle init[/].[/]"
+                "[red]The workflow contains server penguins but your configuration doesn't support them. Please add server configuration to [blue]waddle.yaml[/] or add them using [blue]waddle init[/].[/]"
             );
             return 1;
         }

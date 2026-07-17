@@ -15,11 +15,15 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
     public required Stream ServerOutput;
     public readonly StreamWriter ServerOutputWriter;
 
+    private WaddleContext _parent;
+    private bool _connected;
+
     [SetsRequiredMembers]
     public WaddleServerContext(
         WaddleServerConfig cfg,
+        WaddleContext parent,
         Func<string> getPassword,
-        ILoggerFactory loggerFactory
+        ILoggerFactory? loggerFactory
     )
     {
         AuthenticationMethod method = cfg switch
@@ -41,10 +45,13 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
             _ => throw new NotImplementedException(),
         };
 
-        ConnectionInfo info = new(cfg.Host, cfg.Port, cfg.Username, method)
+        ConnectionInfo info = new(cfg.Host, cfg.Port, cfg.Username, method);
+        if (loggerFactory is not null)
         {
-            LoggerFactory = loggerFactory,
-        };
+            info.LoggerFactory = loggerFactory;
+        }
+
+        _parent = parent;
 
         SshClient = new(info);
         SftpClient = new(info);
@@ -57,8 +64,16 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
 
     public async Task Connect()
     {
+        if (_connected)
+        {
+            return;
+        }
+        _parent.Logger.LogInformation("Connecting SSH CLient");
         await SshClient.ConnectAsync(CancellationToken.None);
+        _parent.Logger.LogInformation("Connecting SFTP CLient");
         await SftpClient.ConnectAsync(CancellationToken.None);
+        _parent.Logger.LogInformation("Connection successful");
+        _connected = true;
     }
 
     public async ValueTask DisposeAsync()
@@ -136,15 +151,20 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
 
         if (cfg.Server is { } serverCfg)
         {
-            Server = new WaddleServerContext(serverCfg, getPassword, _loggerFactory);
+            Server = new WaddleServerContext(
+                serverCfg,
+                this,
+                getPassword,
+                cfg.LogFileName is not null ? _loggerFactory : null
+            );
         }
 
         Logger = _loggerFactory.CreateLogger("Waddle");
     }
 
-
     public void Dispose()
     {
+        Logger.LogDebug("Disposing of WaddleContext");
         Server?.Dispose();
 
         ClientOutputWriter.Flush();
@@ -155,6 +175,7 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
 
     public async ValueTask DisposeAsync()
     {
+        Logger.LogDebug("Disposing of WaddleContext asynchronously");
         if (Server is not null)
         {
             await Server.DisposeAsync();
