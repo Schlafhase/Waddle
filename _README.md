@@ -192,15 +192,11 @@ workflow.
 
 You can edit these in `waddle.yaml`
 
-```cs
 {configFields}
-```
 
 ### Server config
 
-```cs
 {serverConfigFields}
-```
 
 ## For developers
 

@@ -144,14 +144,14 @@ workflow is a yaml sequence of actions (I call them penguins). Every penguin
 needs a name and some parameters depending on the type. Here is the list of all
 available penguins:
 
-| Penguin          | Description                                                                    | Parameters                                       |
-| ---------------- | ------------------------------------------------------------------------------ | ------------------------------------------------ |
-| RunServerCommand | Runs a command on the on the server via SSH                                    | `serverCmd` (string)                             |
-| SendFolder       | Uploads a folder to a destination (directory!) on the server                   | `sendFolder` (string), `destination` (string)    |
-| ReceiveFolder    | Downloads a folder from the server to a destination (directory!) on the client | `receiveFolder` (string), `destination` (string) |
-| SendFile         | Uploads a single file to a destination (file!) on the server                   | `sendFile` (string), `destination` (string)      |
-| ReceiveFile      | Downloads a single file from the server to a destination (file!) on the client | `receiveFile` (string), `destination` (string)   |
-| RunCommand       | Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)         | `cmd` (string)                                   |
+| Penguin                                                                                                                 | Description                                                                    | Parameters                                       |
+| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------ |
+| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs) | Runs a command on the on the server via SSH                                    | `serverCmd` (string)                             |
+| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)             | Uploads a folder to a destination (directory!) on the server                   | `sendFolder` (string), `destination` (string)    |
+| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)       | Downloads a folder from the server to a destination (directory!) on the client | `receiveFolder` (string), `destination` (string) |
+| [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                 | Uploads a single file to a destination (file!) on the server                   | `sendFile` (string), `destination` (string)      |
+| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)           | Downloads a single file from the server to a destination (file!) on the client | `receiveFile` (string), `destination` (string)   |
+| [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)             | Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)         | `cmd` (string)                                   |
 
 > [!WARNING]
 >
@@ -211,6 +211,8 @@ workflow.
 
 You can edit these in `waddle.yaml`
 
+> Extracted from [WaddleConfig.cs](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Config/WaddleConfig.cs)
+
 ```cs
 public WaddleServerConfig? Server;
 
@@ -231,6 +233,8 @@ public bool VerboseErrors;
 ```
 
 ### Server config
+
+> Extracted from [WaddleConfig.cs](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Config/WaddleConfig.cs)
 
 ```cs
 public required string Host;

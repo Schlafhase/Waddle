@@ -12,11 +12,11 @@ Dictionary<string, string> replacements = [];
 replacements.Add("{disclaimer}", "<!-- GENERATED FILE. DO NOT EDIT -->");
 replacements.Add(
     "{configFields}",
-    await getRegion("./Waddle.Config/WaddleConfig.cs", "ConfigFields")
+    await getCodeRegion("./Waddle.Config/WaddleConfig.cs", "ConfigFields")
 );
 replacements.Add(
     "{serverConfigFields}",
-    await getRegion("./Waddle.Config/WaddleConfig.cs", "ServerConfigFields")
+    await getCodeRegion("./Waddle.Config/WaddleConfig.cs", "ServerConfigFields")
 );
 replacements.Add(
     "{nixPackage}",
@@ -107,6 +107,24 @@ static string removeIndentation(string text)
     return string.Join(Environment.NewLine, lines.Take(end));
 }
 
+static string getGithubLink(string file)
+{
+    return $"https://github.com/Schlafhase/Waddle/blob/master/{Path.GetRelativePath(".", file)}";
+}
+
+static async Task<string> getCodeRegion(string file, string region)
+{
+    string regionText = await getRegion(file, region);
+    return $"""
+        > Extracted from [{Path.GetFileName(
+            file
+        )}]({getGithubLink(file)})
+        ```cs
+        {regionText}
+        ```
+        """;
+}
+
 static async Task<string> getRegion(string file, string region)
 {
     string regionStart = "#region " + region;
@@ -192,7 +210,9 @@ static async Task<string> getPenguinsTable()
             parameters = "*No documentation available*";
         }
 
-        sb.AppendLine($"| {name} | {description} | {parameters} |");
+        sb.AppendLine(
+            $"| [{name}]({getGithubLink(penguinSource)}) | {description} | {parameters} |"
+        );
     }
 
     return sb.ToString();
