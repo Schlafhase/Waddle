@@ -1,4 +1,3 @@
-Server: 
 ClientOutputFileName: output.txt
 LogFileName: waddle.log
 LogLevel: Trace

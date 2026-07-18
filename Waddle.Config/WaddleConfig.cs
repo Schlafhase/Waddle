@@ -59,7 +59,7 @@ public struct WaddleConfig
     public string? ClientOutputFileName;
 
     public string? LogFileName;
-    public LogLevel LogLevel;
+    public LogLevel LogLevel; // Trace | Debug | Information | Warning | Error | Critical
 
     public string FinishedIcon;
     public string WaitingIcon;

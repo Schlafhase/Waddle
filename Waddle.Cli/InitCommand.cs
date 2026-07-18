@@ -203,7 +203,11 @@ public class InitCommand : Command
                         else
                         {
                             string fullPath = Path.GetFullPath(trimmed);
-                            return fullPath == Path.GetFullPath(((WaddleServerConfig)cfg.Server).ServerOutputFileName)
+                            return
+                                fullPath
+                                == Path.GetFullPath(
+                                    ((WaddleServerConfig)cfg.Server).ServerOutputFileName
+                                )
                                 ? ValidationResult.Error(
                                     "Client output can't be the same as server output."
                                 )

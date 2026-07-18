@@ -7,7 +7,7 @@ Server:
   UseSshAgent: false
   ServerOutputFileName: output.txt
 ClientOutputFileName: coutput.txt
-LogFileName:
+LogFileName: waddle.log
 LogLevel: Trace
 FinishedIcon: "\U000F05E0 [italic dim]Success[/]"
 WaitingIcon: "\U000F051A [italic dim]Working[/]"
