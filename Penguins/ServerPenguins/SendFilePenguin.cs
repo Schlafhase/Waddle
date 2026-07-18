@@ -2,6 +2,11 @@ using Waddle.Config;
 
 namespace Penguins.ServerPenguins;
 
+#region ReadmeInfo
+// Uploads a single file to a destination (file!) on the server
+// `sendFile` (string), `destination` (string)
+#endregion
+
 public class SendFilePenguin(WaddleContext context, WaddleServerContext serverContext) : PenguinBase
 {
     public required string Source;

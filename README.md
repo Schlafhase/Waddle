@@ -146,12 +146,12 @@ available penguins:
 
 | Penguin          | Description                                                                    | Parameters                                       |
 | ---------------- | ------------------------------------------------------------------------------ | ------------------------------------------------ |
-| RunCommand       | Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)         | `cmd` (string)                                   |
-| RunServerCommand | Runs a command on the server using SSH.                                        | `serverCmd` (string)                             |
+| RunServerCommand | Runs a command on the on the server via SSH                                    | `serverCmd` (string)                             |
 | SendFolder       | Uploads a folder to a destination (directory!) on the server                   | `sendFolder` (string), `destination` (string)    |
 | ReceiveFolder    | Downloads a folder from the server to a destination (directory!) on the client | `receiveFolder` (string), `destination` (string) |
-| SendFile         | Uploads a single file to a destination (file!) on the server                   | `sendFile` (string) `destination`                |
-| ReceiveFile      | Downloads a single file from the server to a destination (file!) on the client | `receiveFile` (string) `destination` (string)    |
+| SendFile         | Uploads a single file to a destination (file!) on the server                   | `sendFile` (string), `destination` (string)      |
+| ReceiveFile      | Downloads a single file from the server to a destination (file!) on the client | `receiveFile` (string), `destination` (string)   |
+| RunCommand       | Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)         | `cmd` (string)                                   |
 
 > [!WARNING]
 >

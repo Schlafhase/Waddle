@@ -3,6 +3,11 @@ using Waddle.Config;
 
 namespace Penguins.ServerPenguins;
 
+#region ReadmeInfo
+// Uploads a folder to a destination (directory!) on the server
+// `sendFolder` (string), `destination` (string)
+#endregion
+
 public class SendFolderPenguin(WaddleContext context, WaddleServerContext serverContext)
     : PenguinBase
 {
@@ -20,7 +25,12 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
         CancellationToken cancellationToken
     )
     {
-        await SftpUtils.CreateDirectoryRecursive(context, serverContext, destination, cancellationToken);
+        await SftpUtils.CreateDirectoryRecursive(
+            context,
+            serverContext,
+            destination,
+            cancellationToken
+        );
         // Upload files
         foreach (string f in Directory.EnumerateFiles(path))
         {

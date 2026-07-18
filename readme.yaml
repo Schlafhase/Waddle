@@ -1,2 +1,5 @@
 - name: Fill replacements
   cmd: ./fill-readme-template.cs
+
+- name: Format
+  cmd: prettier ./README.md -w

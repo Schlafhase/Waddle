@@ -16,6 +16,12 @@ public class CommandException : Exception
         : base(message, innerException) { }
 }
 
+
+#region ReadmeInfo
+// Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)
+// `cmd` (string)
+#endregion
+
 public class RunCommandPenguin(WaddleContext context) : PenguinBase
 {
     public required string Command { get; init; }

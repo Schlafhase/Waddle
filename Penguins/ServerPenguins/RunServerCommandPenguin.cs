@@ -1,9 +1,13 @@
 using Microsoft.Extensions.Logging;
-
 using Renci.SshNet;
 using Waddle.Config;
 
 namespace Penguins.ServerPenguins;
+
+#region ReadmeInfo
+// Runs a command on the on the server via SSH
+// `serverCmd` (string)
+#endregion
 
 public class ServerCommandException : Exception
 {
@@ -16,7 +20,8 @@ public class ServerCommandException : Exception
         : base(message, innerException) { }
 }
 
-public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext serverContext) : PenguinBase
+public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext serverContext)
+    : PenguinBase
 {
     public required string Command { get; init; }
     public string? Output { get; private set; }
