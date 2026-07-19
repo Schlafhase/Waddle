@@ -32,6 +32,10 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 - [How it works](#how-it-works)
 - [Planned features](#planned-features)
 
+> [!NOTE]
+>
+> **Use of AI:** I used Claude to help me with the Dockerfile for the test server.
+
 ## Quick Start
 
 **Requirements:** Docker, .NET SDK
@@ -313,6 +317,7 @@ that need client/server interaction will use these technologies.
 
 - Unit tests
 - Check fingerprint
+- Choose shell program
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
