@@ -35,7 +35,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
         foreach (string f in Directory.EnumerateFiles(path))
         {
             context.Logger?.LogTrace("Uploading {file} to {destination}", f, destination);
-            context.Status = $"Sending {Path.GetRelativePath(Directory.GetCurrentDirectory(), f)}";
+            Status = $"Sending {Path.GetRelativePath(Directory.GetCurrentDirectory(), f)}";
             try
             {
                 await using FileStream fs = File.OpenRead(f);

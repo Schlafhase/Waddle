@@ -2,6 +2,12 @@
 - name: Client command
   cmd: echo hello client
 
+- name: Nushell command
+  cmd: ls | select name
+  shell:
+    - nu
+    - -c
+
 - name: Create text file
   serverCmd: mkdir -p /home/Linus/testing && echo hello from the nest > /home/Linus/testing/text.txt
 

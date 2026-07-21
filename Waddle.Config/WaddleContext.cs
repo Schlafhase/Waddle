@@ -22,17 +22,6 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
 
     public ILogger? Logger;
 
-    public Action? OnStatusChange;
-
-    public string? Status
-    {
-        get => field;
-        set
-        {
-            field = value;
-            OnStatusChange?.Invoke();
-        }
-    }
 
     private readonly ILoggerFactory? _loggerFactory;
 

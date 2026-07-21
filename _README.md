@@ -34,7 +34,8 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 
 > [!NOTE]
 >
-> **Use of AI:** I used Claude to help me with the Dockerfile for the test server.
+> **Use of AI:** I used Claude to help me with the Dockerfile for the test
+> server.
 
 ## Quick Start
 
@@ -160,6 +161,9 @@ Here is the workflow I used in the demo video:
 # deploy.yaml
 - name: Build # RunCommand penguin
   cmd: npm run build
+  shell: # Use custom shell (since sh is the default on Linux, this is redundant and just for demonstration)
+    - sh
+    - -c
 
 - name: Remove unnecessary files from build # RunCommand penguin
   cmd: rm -rf ./.next/standalone/node_modules

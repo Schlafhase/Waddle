@@ -50,7 +50,8 @@ public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext ser
                 file.FullName,
                 destinationPath
             );
-            context.Status = $"Downloading {file.FullName}";
+
+            Status = $"Downloading {file.FullName}";
             Directory.CreateDirectory(destination);
             File.Delete(destinationPath);
             await using FileStream fs = File.OpenWrite(destinationPath);

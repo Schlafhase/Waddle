@@ -30,6 +30,7 @@ public static class WorkflowRunner
                 {
                     Name = wp.Name,
                     Command = cmd,
+                    Shell = wp.Shell,
                 },
 
                 { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(
@@ -77,6 +78,8 @@ public static class WorkflowRunner
             context.Logger?.LogDebug("Created IPenguin {name}", p.Name);
             p.TimeoutMs = wp.TimeoutMs;
             p.IgnoreError = wp.IgnoreError;
+            p.State = PenguinState.Idle;
+
             penguins.Add(p);
         }
 
@@ -85,13 +88,15 @@ public static class WorkflowRunner
             await getServerContextOrThrow().Connect();
         }
 
-        Dictionary<int, string> ignoredErrors = [];
-        int error = -1;
         WaddleConfig cfg = context.Config;
 
-        Tree getUI(int currentIndex)
+        Tree getUI()
         {
-            bool finished = currentIndex == penguins.Count;
+            bool finished = penguins.All(p =>
+                p.State is PenguinState.Success or PenguinState.IgnoredError
+            );
+            bool error = penguins.Any(p => p.State == PenguinState.Error);
+
             string masterColor;
             string masterSuffix;
 
@@ -100,7 +105,7 @@ public static class WorkflowRunner
                 masterColor = "green";
                 masterSuffix = cfg.FinishedIcon;
             }
-            else if (error >= 0 && currentIndex == error)
+            else if (error)
             {
                 masterColor = "red";
                 masterSuffix = cfg.ErrorIcon;
@@ -110,40 +115,38 @@ public static class WorkflowRunner
                 masterColor = "yellow";
                 masterSuffix = cfg.WaitingIcon;
             }
-            Tree t = new(
-                $"[{masterColor}]{(finished || error >= 0 ? "" : " ")}{Markup.Escape(workflow.Name)} {masterSuffix}[/]"
-            );
+            Tree t = new($"[{masterColor}]{Markup.Escape(workflow.Name)} {masterSuffix}[/]");
             for (int i = 0; i < penguins.Count; i++)
             {
                 IPenguin p = penguins[i];
                 string color;
                 string suffix;
-                if (error == i)
+                if (p.State == PenguinState.Error)
                 {
                     color = "red";
                     suffix = cfg.ErrorIcon;
                 }
-                else if (ignoredErrors.TryGetValue(i, out string? error))
+                else if (p.State == PenguinState.IgnoredError)
                 {
                     color = "purple";
                     suffix = cfg.IgnoredIcon;
-                    if (!string.IsNullOrWhiteSpace(error))
+                    if (!string.IsNullOrWhiteSpace(p.Status))
                     {
-                        suffix += $"[dim]: {Markup.Escape(error)}[/]";
+                        suffix += $"[dim]: {Markup.Escape(p.Status)}[/]";
                     }
                 }
-                else if (currentIndex > i)
+                else if (p.State == PenguinState.Success)
                 {
                     color = "green";
                     suffix = cfg.FinishedIcon;
                 }
-                else if (currentIndex == i)
+                else if (p.State == PenguinState.Working)
                 {
                     color = "yellow";
                     suffix = cfg.WaitingIcon;
-                    if (!string.IsNullOrWhiteSpace(context.Status))
+                    if (!string.IsNullOrWhiteSpace(p.Status))
                     {
-                        suffix += $"[dim]: {Markup.Escape(context.Status)}[/]";
+                        suffix += $"[dim]: {Markup.Escape(p.Status)}[/]";
                     }
                 }
                 else
@@ -156,7 +159,7 @@ public static class WorkflowRunner
             }
             return t;
         }
-        Tree ui = getUI(0);
+        Tree ui = getUI();
 
         await AnsiConsole
             .Live(ui)
@@ -165,8 +168,12 @@ public static class WorkflowRunner
                 for (int i = 0; i < penguins.Count; i++)
                 {
                     context.Logger?.LogTrace("Entering new workflow penguin");
-                    context.OnStatusChange = () => ctx.UpdateTarget(getUI(i));
                     IPenguin p = penguins[i];
+                    p.OnStatusChange = () => ctx.UpdateTarget(getUI());
+
+                    p.State = PenguinState.Working;
+                    ctx.UpdateTarget(getUI());
+
                     using CancellationTokenSource tokenSource = p.TimeoutMs is { } timeout
                         ? new CancellationTokenSource(TimeSpan.FromMilliseconds(timeout))
                         : new CancellationTokenSource();
@@ -175,6 +182,8 @@ public static class WorkflowRunner
                     {
                         context.Logger?.LogInformation("Running {name}", p.Name);
                         await p.Execute(tokenSource.Token);
+                        p.State = PenguinState.Success;
+                        p.Status = "";
                     }
                     catch (Exception e)
                     {
@@ -183,8 +192,8 @@ public static class WorkflowRunner
                             : e.Message;
                         if (!p.IgnoreError)
                         {
-                            error = i;
-                            ctx.UpdateTarget(getUI(i));
+                            p.State = PenguinState.Error;
+                            ctx.UpdateTarget(getUI());
                             throw;
                         }
                         context.Logger?.LogWarning(
@@ -192,13 +201,14 @@ public static class WorkflowRunner
                             p.Name,
                             e.Message
                         );
-                        ignoredErrors.Add(i, message.Replace("\n", " "));
-                        ctx.UpdateTarget(getUI(i + 1));
+                        p.State = PenguinState.IgnoredError;
+                        p.Status = message.Replace("\n", " ");
+                        ctx.UpdateTarget(getUI());
                     }
 
-                    ctx.UpdateTarget(getUI(i + 1));
+                    p.OnStatusChange = null;
+                    ctx.UpdateTarget(getUI());
                 }
-                context.OnStatusChange = null;
             });
     }
 }

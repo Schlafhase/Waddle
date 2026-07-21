@@ -9,6 +9,7 @@ public struct WorkflowPenguin
     public bool IgnoreError;
     public int? TimeoutMs;
     public string? Cmd;
+    public List<string>? Shell;
     public string? ServerCmd;
     public string? SendFolder;
     public string? ReceiveFolder;

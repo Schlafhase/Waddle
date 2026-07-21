@@ -16,15 +16,15 @@ public class CommandException : Exception
         : base(message, innerException) { }
 }
 
-
 #region ReadmeInfo
-// Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)
-// `cmd` (string)
+// Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course).
+// `cmd` (string), `shell` (List\<string\>)
 #endregion
 
 public class RunCommandPenguin(WaddleContext context) : PenguinBase
 {
     public required string Command { get; init; }
+    public List<string>? Shell { get; init; }
     public string? Output { get; private set; }
     public int? ExitStatus { get; private set; }
 
@@ -32,16 +32,26 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase
     {
         bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
+        var shell = Shell ?? context.Config.DefaultShell;
+
         ProcessStartInfo psi = new()
         {
-            FileName = isWindows ? "cmd.exe" : "/bin/sh",
+            FileName = shell?[0] ?? (isWindows ? "cmd.exe" : "/bin/sh"),
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             RedirectStandardInput = true,
             CreateNoWindow = true,
         };
-        if (isWindows)
+        if (shell is not null)
+        {
+            foreach (string arg in shell.Skip(1))
+            {
+                psi.ArgumentList.Add(arg);
+                psi.ArgumentList.Add(Command);
+            }
+        }
+        else if (isWindows)
         {
             psi.ArgumentList.Add("/c");
             psi.ArgumentList.Add(Command);

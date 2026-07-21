@@ -6,7 +6,7 @@ namespace Waddle.Config;
 
 public struct WaddleServerConfig
 {
-#region ServerConfigFields
+    #region ServerConfigFields
     public required string Host;
     public int Port;
     public required string Username;
@@ -16,7 +16,7 @@ public struct WaddleServerConfig
     public bool UseSshAgent;
 
     public string? ServerOutputFileName;
-#endregion
+    #endregion
 
     [YamlIgnore]
     public readonly string? KeyfileFullPath =>
@@ -68,6 +68,7 @@ public struct WaddleConfig
     public string NotActiveIcon;
 
     public required string DefaultWorkflow;
+    public List<string>? DefaultShell; // e.g. ["sh", "-c"]
 
     public bool VerboseErrors;
     #endregion

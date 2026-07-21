@@ -34,7 +34,8 @@ The video shows me using Waddle to deploy a Nextjs project. I added the text
 
 > [!NOTE]
 >
-> **Use of AI:** I used Claude to help me with the Dockerfile for the test server.
+> **Use of AI:** I used Claude to help me with the Dockerfile for the test
+> server.
 
 ## Quick Start
 
@@ -148,14 +149,14 @@ workflow is a yaml sequence of actions (I call them penguins). Every penguin
 needs a name and some parameters depending on the type. Here is the list of all
 available penguins:
 
-| Penguin                                                                                                                 | Description                                                                    | Parameters                                       |
-| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------ |
-| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs) | Runs a command on the on the server via SSH                                    | `serverCmd` (string)                             |
-| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)             | Uploads a folder to a destination (directory!) on the server                   | `sendFolder` (string), `destination` (string)    |
-| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)       | Downloads a folder from the server to a destination (directory!) on the client | `receiveFolder` (string), `destination` (string) |
-| [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                 | Uploads a single file to a destination (file!) on the server                   | `sendFile` (string), `destination` (string)      |
-| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)           | Downloads a single file from the server to a destination (file!) on the client | `receiveFile` (string), `destination` (string)   |
-| [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)             | Runs a command on the client using `sh` (Linux) or `cmd.exe` (Windows)         | `cmd` (string)                                   |
+| Penguin                                                                                                                 | Description                                                                                                                                                                        | Parameters                                       |
+| ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs) | Runs a command on the on the server via SSH                                                                                                                                        | `serverCmd` (string)                             |
+| [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                 | Uploads a single file to a destination (file!) on the server                                                                                                                       | `sendFile` (string), `destination` (string)      |
+| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)           | Downloads a single file from the server to a destination (file!) on the client                                                                                                     | `receiveFile` (string), `destination` (string)   |
+| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)       | Downloads a folder from the server to a destination (directory!) on the client                                                                                                     | `receiveFolder` (string), `destination` (string) |
+| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)             | Uploads a folder to a destination (directory!) on the server                                                                                                                       | `sendFolder` (string), `destination` (string)    |
+| [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)             | Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course). | `cmd` (string), `shell` (List\<string\>)         |
 
 > [!WARNING]
 >
@@ -179,6 +180,9 @@ Here is the workflow I used in the demo video:
 # deploy.yaml
 - name: Build # RunCommand penguin
   cmd: npm run build
+  shell: # Use custom shell (since sh is the default on Linux, this is redundant and just for demonstration)
+    - sh
+    - -c
 
 - name: Remove unnecessary files from build # RunCommand penguin
   cmd: rm -rf ./.next/standalone/node_modules
@@ -232,6 +236,7 @@ public string IgnoredIcon;
 public string NotActiveIcon;
 
 public required string DefaultWorkflow;
+public List<string>? DefaultShell; // e.g. ["sh", "-c"]
 
 public bool VerboseErrors;
 ```
