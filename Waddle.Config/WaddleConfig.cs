@@ -61,11 +61,13 @@ public struct WaddleConfig
     public string? LogFileName;
     public LogLevel LogLevel; // Trace | Debug | Information | Warning | Error | Critical
 
-    public string FinishedIcon;
+    [YamlMember(Alias = "FinishedIcon")]
+    public string SuccessIcon;
     public string WaitingIcon;
     public string ErrorIcon;
     public string IgnoredIcon;
-    public string NotActiveIcon;
+    [YamlMember(Alias = "NotActiveIcon")]
+    public string IdleIcon;
 
     public required string DefaultWorkflow;
     public List<string>? DefaultShell; // e.g. ["sh", "-c"]

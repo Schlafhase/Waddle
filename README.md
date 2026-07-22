@@ -149,14 +149,19 @@ workflow is a yaml sequence of actions (I call them penguins). Every penguin
 needs a name and some parameters depending on the type. Here is the list of all
 available penguins:
 
+> [!NOTE]
+>
+> A good place to look for example usages of penguins is [Waddle.Cli/test.yaml](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Cli/test.yaml)
+
 | Penguin                                                                                                                 | Description                                                                                                                                                                        | Parameters                                       |
 | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs) | Runs a command on the on the server via SSH                                                                                                                                        | `serverCmd` (string)                             |
 | [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                 | Uploads a single file to a destination (file!) on the server                                                                                                                       | `sendFile` (string), `destination` (string)      |
 | [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)           | Downloads a single file from the server to a destination (file!) on the client                                                                                                     | `receiveFile` (string), `destination` (string)   |
 | [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)       | Downloads a folder from the server to a destination (directory!) on the client                                                                                                     | `receiveFolder` (string), `destination` (string) |
 | [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)             | Uploads a folder to a destination (directory!) on the server                                                                                                                       | `sendFolder` (string), `destination` (string)    |
+| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs) | Runs a command on the on the server via SSH                                                                                                                                        | `serverCmd` (string)                             |
 | [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)             | Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course). | `cmd` (string), `shell` (List\<string\>)         |
+| [RunWorkflow](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunWorkflowPenguin.cs)           | Runs a workflow from a filepath or a list of penguins                                                                                                                              | `workflow` (string), `children` (List<IPenguin>) |
 
 > [!WARNING]
 >
@@ -229,11 +234,13 @@ public string? ClientOutputFileName;
 public string? LogFileName;
 public LogLevel LogLevel; // Trace | Debug | Information | Warning | Error | Critical
 
-public string FinishedIcon;
+[YamlMember(Alias = "FinishedIcon")]
+public string SuccessIcon;
 public string WaitingIcon;
 public string ErrorIcon;
 public string IgnoredIcon;
-public string NotActiveIcon;
+[YamlMember(Alias = "NotActiveIcon")]
+public string IdleIcon;
 
 public required string DefaultWorkflow;
 public List<string>? DefaultShell; // e.g. ["sh", "-c"]
@@ -320,10 +327,10 @@ that need client/server interaction will use these technologies.
 
 ## Planned features
 
-- Unit tests
-- Check fingerprint
-- Choose shell program _(Implemented but not thoroughly tested)_
-- Allow nested workflows
+- Unit tests _(Implementing)_
+- Check fingerprint Choose shell program _(Implemented but not thoroughly
+  tested)_
+- Allow nested workflows _(Implemented but not thoroughly tested)_
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows _(Implemented but not thoroughly tested)_

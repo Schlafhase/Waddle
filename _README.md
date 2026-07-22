@@ -137,6 +137,10 @@ workflow is a yaml sequence of actions (I call them penguins). Every penguin
 needs a name and some parameters depending on the type. Here is the list of all
 available penguins:
 
+> [!NOTE]
+>
+> A good place to look for example usages of penguins is [Waddle.Cli/test.yaml](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Cli/test.yaml)
+
 {penguinsTable}
 
 > [!WARNING]
@@ -269,10 +273,10 @@ that need client/server interaction will use these technologies.
 
 ## Planned features
 
-- Unit tests
-- Check fingerprint
-- Choose shell program _(Implemented but not thoroughly tested)_
-- Allow nested workflows
+- Unit tests _(Implementing)_
+- Check fingerprint Choose shell program _(Implemented but not thoroughly
+  tested)_
+- Allow nested workflows _(Implemented but not thoroughly tested)_
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows _(Implemented but not thoroughly tested)_

@@ -1,9 +1,12 @@
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
-using Penguins.Exceptions;
+using Penguins;
+using Penguins.ClientPenguins;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Waddle.Config;
+using Waddle.Config.Exceptions;
+using YamlDotNet.Core;
 
 namespace Waddle.Cli;
 
@@ -51,83 +54,79 @@ public class RunCommand : AsyncCommand<RunSettings>
         await using WaddleContext waddleContext = new(
             config,
             getPassword: () =>
-            AnsiConsole.Prompt(new TextPrompt<string>("[yellow]Please enter your password for the remote host:[/]").Secret())
+                AnsiConsole.Prompt(
+                    new TextPrompt<string>(
+                        "[yellow]Please enter your password for the remote host:[/]"
+                    ).Secret()
+                )
         );
 
         waddleContext.Logger?.LogInformation("Waddle context created. Hello World!");
 
         // Find workflow file
-        List<string> allowedFileEndings = [".w.yaml", ".w.yml", ".yaml", ".yml"];
-        string workflowName = settings.Workflow != "" ? settings.Workflow : config.DefaultWorkflow;
-        bool hasFileEnding = allowedFileEndings.Any(workflowName.EndsWith);
-        waddleContext.Logger?.LogTrace("Finding workflow file for `{workflow}`", workflowName);
 
-        string yaml = "";
-        if (hasFileEnding)
+        // Parse workflow
+        waddleContext.Logger?.LogInformation("Parsing workflow");
+        List<YamlPenguin> workflow;
+
+        string workflowName = !string.IsNullOrWhiteSpace(settings.Workflow)
+            ? settings.Workflow
+            : config.DefaultWorkflow;
+
+        try
         {
-            waddleContext.Logger?.LogTrace("Checking `{file}`", workflowName);
-            if (File.Exists(workflowName))
-            {
-                waddleContext.Logger?.LogInformation(
-                    "Using `{file}` as workflow file",
-                    workflowName
-                );
-                yaml = File.ReadAllText(workflowName);
-            }
+            workflow = WaddleWorkflow.FromWorkflowName(workflowName, waddleContext.Logger);
         }
-        else
+        catch (Exception e)
         {
-            foreach (string ending in allowedFileEndings)
+            waddleContext.Logger?.LogCritical("Failed to parse workflow: {message}", e);
+            if (config.VerboseErrors)
             {
-                waddleContext.Logger?.LogTrace("Checking `{file}`", workflowName + ending);
-                if (File.Exists(workflowName + ending))
-                {
-                    waddleContext.Logger?.LogInformation(
-                        "Using `{file}` as workflow file",
-                        workflowName + ending
-                    );
-                    yaml = File.ReadAllText(workflowName + ending);
-                    break;
-                }
-            }
-        }
-        if (string.IsNullOrWhiteSpace(yaml))
-        {
-            if (hasFileEnding)
-            {
-                AnsiConsole.MarkupLineInterpolated(
-                    $"[red]The requested workflow [blue]{workflowName}[/] is empty or doesn't exist. Create a file named [blue]{workflowName}[/] to create it.[/]"
-                );
+                AnsiConsole.WriteException(e);
             }
             else
             {
                 AnsiConsole.MarkupLineInterpolated(
-                    $"[red]The requested workflow [blue]{workflowName}[/] is empty or doesn't exist. Create a file named [blue]{workflowName}.yaml[/] or [blue]{workflowName}.yml[/] to create it. You can also name the file [blue]{workflowName}.w.yaml[/] or [blue]{workflowName}.w.yml[/] to avoid conflicts with other tools.[/]"
+                    $"[red]Failed to parse workflow: {e.Message}[/]"
+                );
+                AnsiConsole.WriteLine(
+                    "[red]A message like 'Property X not found on type Y.' means that you defined fields in your yaml file that don't exist."
                 );
             }
+
             return 1;
         }
 
-        // Parse workflow
-        waddleContext.Logger?.LogInformation("Parsing workflow");
-        WaddleWorkflow workflow;
+        RunWorkflowPenguin workflowPenguin;
 
         try
         {
-            workflow = WaddleWorkflow.FromYaml(yaml, workflowName);
-            ArgumentNullException.ThrowIfNull(workflow.WorkflowPenguins);
+            workflowPenguin = new(waddleContext, workflow)
+            {
+                Name = workflowName,
+                State = PenguinState.Working,
+            };
         }
-        catch (Exception e)
+        catch (StackOverflowException)
         {
-            waddleContext.Logger?.LogCritical("Failed to parse workflow: {message}", e.Message);
-            throw;
+            AnsiConsole.MarkupLine(
+                "[red]Circular dependency in workflow detected. Recursive workflows are not supported.[/]"
+            );
+            return 1;
         }
 
         // Run Workflow
         waddleContext.Logger?.LogInformation("Sarting workflow");
         try
         {
-            await WorkflowRunner.Run(workflow, waddleContext);
+            await AnsiConsole
+                .Live(renderWorkflow(workflowPenguin, waddleContext))
+                .StartAsync(async ctx =>
+                {
+                    workflowPenguin.OnPenguinsChange = () =>
+                        ctx.UpdateTarget(renderWorkflow(workflowPenguin, waddleContext));
+                    await workflowPenguin.Execute(CancellationToken.None);
+                });
         }
         catch (TaskCanceledException)
         {
@@ -161,5 +160,69 @@ public class RunCommand : AsyncCommand<RunSettings>
 
         waddleContext.Logger?.LogInformation("Exiting with code 0");
         return 0;
+    }
+
+    private static Tree renderWorkflow(RunWorkflowPenguin p, WaddleContext context)
+    {
+        WaddleConfig cfg = context.Config;
+        bool error = p.Penguins.Any(p => p.State == PenguinState.Error);
+        bool working = p.Penguins.Any(p => p.State == PenguinState.Working);
+        bool finished = p.Penguins.All(p =>
+            p.State is PenguinState.Success or PenguinState.IgnoredError
+        );
+
+        string masterColor;
+        string masterSuffix;
+
+        if (finished)
+        {
+            masterColor = "green";
+            masterSuffix = cfg.SuccessIcon;
+        }
+        else if (error)
+        {
+            masterColor = "red";
+            masterSuffix = cfg.ErrorIcon;
+        }
+        else if (working)
+        {
+            masterColor = "yellow";
+            masterSuffix = cfg.WaitingIcon;
+        }
+        else
+        {
+            masterColor = "dim";
+            masterSuffix = cfg.IdleIcon;
+        }
+
+        Tree t = new($"[{masterColor}]{Markup.Escape(p.Name)} {masterSuffix}[/]");
+
+        foreach (IPenguin ip in p.Penguins)
+        {
+            if (ip is RunWorkflowPenguin rwp)
+            {
+                t.AddNode(renderWorkflow(rwp, context));
+                continue;
+            }
+            string color = ip.State switch
+            {
+                PenguinState.Error => "red",
+                PenguinState.IgnoredError => "purple",
+                PenguinState.Working => "yellow",
+                PenguinState.Success => "green",
+                _ => "dim",
+            };
+            string suffix = ip.State switch
+            {
+                PenguinState.Error => cfg.ErrorIcon,
+                PenguinState.IgnoredError => cfg.IgnoredIcon,
+                PenguinState.Working => cfg.WaitingIcon,
+                PenguinState.Success => cfg.SuccessIcon,
+                _ => cfg.IdleIcon,
+            };
+            suffix += !string.IsNullOrWhiteSpace(ip.Status) ? $"[dim]: {ip.Status}[/]" : "";
+            t.AddNode($"[{color}]{ip.Name} {suffix}[/]");
+        }
+        return t;
     }
 }

@@ -1,38 +1,84 @@
+using Microsoft.Extensions.Logging;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
 namespace Waddle.Config;
 
-public struct WorkflowPenguin
+public struct YamlPenguin
 {
     public required string Name;
     public bool IgnoreError;
     public int? TimeoutMs;
+
+    // RunCommand
     public string? Cmd;
     public List<string>? Shell;
+
     public string? ServerCmd;
+
+    // File stuff
     public string? SendFolder;
     public string? ReceiveFolder;
     public string? SendFile;
     public string? ReceiveFile;
     public string? Destination;
+
+    // Nested workflow
+    public string? Workflow;
+    public List<YamlPenguin> Children;
 }
 
-public class WaddleWorkflow
+public static class WaddleWorkflow
 {
-    public required string Name;
-    public required List<WorkflowPenguin> WorkflowPenguins;
-
-    public static WaddleWorkflow FromYaml(string yaml, string name)
+    public static List<YamlPenguin> FromYaml(string yaml)
     {
         IDeserializer deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 
-        return new WaddleWorkflow()
+        List<YamlPenguin> workflow = deserializer.Deserialize<List<YamlPenguin>>(yaml);
+        ArgumentNullException.ThrowIfNull(workflow);
+        return workflow;
+    }
+
+    public static List<YamlPenguin> FromWorkflowName(string workflowName, ILogger? logger = null)
+    {
+        List<string> allowedFileEndings = [".w.yaml", ".w.yml", ".yaml", ".yml"];
+        bool hasFileEnding = allowedFileEndings.Any(workflowName.EndsWith);
+        logger?.LogTrace("Finding workflow file for `{workflow}`", workflowName);
+
+        string yaml = "";
+        if (hasFileEnding)
         {
-            Name = name,
-            WorkflowPenguins = deserializer.Deserialize<List<WorkflowPenguin>>(yaml),
-        };
+            logger?.LogTrace("Checking `{file}`", workflowName);
+            if (File.Exists(workflowName))
+            {
+                logger?.LogInformation("Using `{file}` as workflow file", workflowName);
+                yaml = File.ReadAllText(workflowName);
+            }
+        }
+        else
+        {
+            foreach (string ending in allowedFileEndings)
+            {
+                logger?.LogTrace("Checking `{file}`", workflowName + ending);
+                if (File.Exists(workflowName + ending))
+                {
+                    logger?.LogInformation(
+                        "Using `{file}` as workflow file",
+                        workflowName + ending
+                    );
+                    yaml = File.ReadAllText(workflowName + ending);
+                    break;
+                }
+            }
+        }
+        if (string.IsNullOrWhiteSpace(yaml))
+        {
+            throw new ArgumentException(
+                "The requested workflow is empty or doesn't exist. Create a .yaml, .yml, .w.yaml or .w.yml file to create it."
+            );
+        }
+        return FromYaml(yaml);
     }
 }

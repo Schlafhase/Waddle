@@ -236,23 +236,23 @@ public class InitCommand : Command
         if (
             AnsiConsole.Confirm(
                 "[dim]Do you want to use[/] [green]Nerd Fonts[/][dim] for icons? (requires a Nerd Font to be installed)[/]",
-                existingCfg.FinishedIcon == "󰗠 [italic dim]Success[/]"
+                existingCfg.SuccessIcon == "󰗠 [italic dim]Success[/]"
             )
         )
         {
-            cfg.FinishedIcon = "󰗠 [italic dim]Success[/]";
+            cfg.SuccessIcon = "󰗠 [italic dim]Success[/]";
             // cfg.WaitingIcon = " ";
             cfg.WaitingIcon = "󰔚 [italic dim]Working[/]";
             cfg.ErrorIcon = "󰅙 [italic dim]Error[/]";
-            cfg.NotActiveIcon = " ";
+            cfg.IdleIcon = " ";
             cfg.IgnoredIcon = " [italic dim]Ignored Error[/]";
         }
         else
         {
-            cfg.FinishedIcon = ":check_mark: [italic dim]Success[/]";
+            cfg.SuccessIcon = ":check_mark: [italic dim]Success[/]";
             cfg.WaitingIcon = ":three_o_clock: [italic dim]Working[/]";
             cfg.ErrorIcon = "× [italic dim]Error[/]";
-            cfg.NotActiveIcon = ":zzz:";
+            cfg.IdleIcon = ":zzz:";
             cfg.IgnoredIcon = ":minus: [italic dim]Ignored Error[/]";
         }
 

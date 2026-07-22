@@ -1,9 +1,13 @@
 # multiple actions in one penguin will lead to unexpected behaviour
+- name: first sleep
+  cmd: sleep 1
+
 - name: Client command
   cmd: echo hello client
 
 - name: Nushell command
   cmd: ls | select name
+  ignoreError: true
   shell:
     - nu
     - -c
@@ -18,34 +22,43 @@
 - name: Modify text file
   cmd: echo helloo from the client >> ./output/text.txt
 
-- name: Send text file back
-  sendFile: ./output/text.txt
-  destination: /home/Linus/out/put/textmodified.txt
+- name: some nesting :)
+  children:
+  - name: Send text file back
+    sendFile: ./output/text.txt
+    destination: /home/Linus/out/put/textmodified.txt
 
-- name: Read file
-  serverCmd: cat /home/Linus/out/put/textmodified.txt
+  - name: Read file
+    serverCmd: cat /home/Linus/out/put/textmodified.txt
 
-- name: Receive folder
-  receiveFolder: /home/Linus/out/put/
-  destination: ./output
+  - name: Receive folder
+    receiveFolder: /home/Linus/out/put/
+    destination: ./output
 
-- name: Sleep
-  serverCmd: sleep 2
+  - name: Sleep
+    serverCmd: sleep 2
 
 - name: Timeout
   cmd: sleep 20
   timeoutMs: 1000
   ignoreError: true
 
-- name: Ignore Error
-  serverCmd: asdf
-  ignoreError: true
+- name: Nested ignored error
+  children:
+  - name: Ignore Error
+    serverCmd: asdf
+    ignoreError: true
 
 - name: sleep (again)
   cmd: sleep 2
 
-- name: Local Error
-  cmd: asdf
+- name: Nested from file
+  workflow: _test
+
+- name: Nested Error
+  children:
+  - name: Local Error
+    cmd: asdf
 
 - name: After error
   serverCmd: echo hi server

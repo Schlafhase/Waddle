@@ -8,7 +8,7 @@ public abstract class PenguinBase : IPenguin
     public bool IgnoreError { get; set; }
     public int? TimeoutMs { get; set; }
 
-    public PenguinState State { get; set; }
+    public PenguinState State { get => field; set {field = value; OnStatusChange?.Invoke();} }
     public Action? OnStatusChange { private get; set;}
 
     public string? Status

@@ -2,6 +2,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
+using Waddle.Config.Exceptions;
+
 
 namespace Waddle.Config;
 
@@ -16,6 +18,7 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
     public required WaddleConfig Config;
 
     public WaddleServerContext? Server;
+    public WaddleServerContext ServerOrThrow => Server ?? throw new MissingServerConfigException();
 
     public required Stream ClientOutput;
     public required StreamWriter ClientOutputWriter;
