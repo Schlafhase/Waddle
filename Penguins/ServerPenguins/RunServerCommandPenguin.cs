@@ -24,7 +24,6 @@ public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext 
     : PenguinBase
 {
     public required string Command { get; init; }
-    public string? Output { get; private set; }
     public int? ExitStatus { get; private set; }
 
     public override async Task Execute(CancellationToken cancellationToken)
@@ -32,9 +31,9 @@ public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext 
         using SshCommand cmd = serverContext.SshClient.CreateCommand(Command);
         await cmd.ExecuteAsync(cancellationToken);
 
-        await serverContext.ServerOutputWriter.WriteAsync(cmd.Result);
-        context.Logger?.LogTrace("Remote command output: {output}", cmd.Result);
-        Output = cmd.Result;
+        string output = cmd.Result + cmd.Error;
+        context.Logger?.LogTrace("Remote command output: {output}", output);
+        await serverContext.ServerOutputWriter.WriteAsync(output);
         ExitStatus = cmd.ExitStatus;
 
         if (ExitStatus is not null && ExitStatus != 0)

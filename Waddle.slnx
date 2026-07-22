@@ -2,4 +2,5 @@
   <Project Path="Penguins/Penguins.csproj" />
   <Project Path="Waddle.Cli/Waddle.Cli.csproj" />
   <Project Path="Waddle.Config/Waddle.Config.csproj" />
+  <Project Path="Waddle.Tests/Waddle.Tests.csproj" />
 </Solution>

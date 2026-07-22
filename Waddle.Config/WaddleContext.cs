@@ -18,7 +18,7 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
     public WaddleServerContext? Server;
 
     public required Stream ClientOutput;
-    public readonly StreamWriter ClientOutputWriter;
+    public required StreamWriter ClientOutputWriter;
 
     public ILogger? Logger;
 

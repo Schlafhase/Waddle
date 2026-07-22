@@ -79,7 +79,7 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase
 
         if (ExitStatus is not null && ExitStatus != 0)
         {
-            throw new CommandException(output);
+            throw new CommandException(error);
         }
     }
 }

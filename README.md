@@ -65,7 +65,7 @@ Now you can start playing around:
 > - **Password:** Docker!
 
 ```sh
-waddle init
+waddle init # Also add a nest (server) and fill out the credentials above
 # Run test workflow
 waddle Waddle.Cli/test
 ```
@@ -322,7 +322,7 @@ that need client/server interaction will use these technologies.
 
 - Unit tests
 - Check fingerprint
-- Choose shell program
+- Choose shell program _(Implemented but not thoroughly tested)_
 - Allow nested workflows
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
