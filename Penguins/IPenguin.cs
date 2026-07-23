@@ -14,6 +14,7 @@ public interface IPenguin
     public string Name { get; }
     public bool IgnoreError { get; set; }
     public int? TimeoutMs { get; set; }
+    public bool Hide {get; set;}
 
     public PenguinState State { get; set; }
     public string? Status { get; set; }

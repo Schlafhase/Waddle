@@ -188,6 +188,7 @@ public class RunCommand : AsyncCommand<RunSettings>
     {
         WaddleConfig cfg = context.Config;
         bool error = p.Penguins.Any(p => p.State == PenguinState.Error);
+        bool IgnoredError = p.IgnoreError && error;
         bool working = p.Penguins.Any(p => p.State == PenguinState.Working);
         bool finished = p.Penguins.All(p =>
             p.State is PenguinState.Success or PenguinState.IgnoredError
@@ -200,6 +201,11 @@ public class RunCommand : AsyncCommand<RunSettings>
         {
             masterColor = "green";
             masterSuffix = cfg.SuccessIcon;
+        }
+        else if (IgnoredError)
+        {
+            masterColor = "purple";
+            masterSuffix = cfg.IgnoredIcon;
         }
         else if (error)
         {
@@ -216,6 +222,8 @@ public class RunCommand : AsyncCommand<RunSettings>
             masterColor = "dim";
             masterSuffix = cfg.IdleIcon;
         }
+
+            masterSuffix += !string.IsNullOrWhiteSpace(p.Status) ? $"[dim]: {p.Status}[/]" : "";
 
         Tree t = new($"[{masterColor}]{Markup.Escape(p.Name)} {masterSuffix}[/]");
 

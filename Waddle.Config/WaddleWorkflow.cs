@@ -13,7 +13,8 @@ public struct YamlPenguin
     public bool Hide;
 
     public string? Error;
-    public string? ThrowIfDefined;
+    public string? IfFalsy;
+    public string? IfTruthy;
 
     // RunCommand
     public string? Cmd;

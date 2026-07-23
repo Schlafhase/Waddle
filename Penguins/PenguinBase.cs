@@ -13,6 +13,7 @@ public abstract partial class PenguinBase(WaddleContext context) : IPenguin
     public required string Name { get; set; }
     public bool IgnoreError { get; set; }
     public int? TimeoutMs { get; set; }
+    public bool Hide {get;set;}
 
     public PenguinState State
     {

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Penguins.ClientPenguins;
 using Penguins.ServerPenguins;
 using Waddle.Config;
 using Waddle.Config.Exceptions;
@@ -17,6 +18,29 @@ namespace Penguins
         {
             return yp switch
             {
+                { Workflow: not null, Children: not null } => throw new InvalidPenguinException(
+                    "Workflow penguin can define either `Workflow` or `Children` but not both."
+                ),
+                { Workflow: string workflow } => new RunWorkflowPenguin(
+                    context,
+                    WaddleWorkflow.FromWorkflowName(
+                        workflow,
+                        out string sourceFile,
+                        context.Logger
+                    ),
+                    sourceFile,
+                    depth + 1
+                )
+                {
+                    Name = yp.Name,
+                },
+                { Children: List<YamlPenguin> workflow } => new RunWorkflowPenguin(
+                    context,
+                    workflow
+                )
+                {
+                    Name = yp.Name,
+                },
                 _ => throw new NoMatchException(),
             };
         }
@@ -43,16 +67,23 @@ namespace Penguins.ClientPenguins
         )
             : base(context)
         {
+            if (depth >= 255)
+            {
+                throw new StackOverflowException(
+                    "Nesting workflows deeper than 255 levels is not allowed."
+                );
+            }
+
             Source = sourceFile;
             Workflow = workflow;
             _context = context;
-            _matcher = new(_context);
+            _matcher = new(_context, depth);
 
             string? dir = !string.IsNullOrWhiteSpace(Source) ? Path.GetDirectoryName(Source) : null;
             using var _ = new Cd(dir, context.Logger);
             foreach (YamlPenguin yp in Workflow)
             {
-                IPenguin p = toIPenguin(yp, depth);
+                IPenguin p = toIPenguin(yp);
                 Penguins.Add(p);
             }
         }
@@ -96,6 +127,11 @@ namespace Penguins.ClientPenguins
                     if (!p.IgnoreError)
                     {
                         p.State = PenguinState.Error;
+                        if (IgnoreError)
+                        {
+                            State = PenguinState.IgnoredError;
+                            Status = e.Message;
+                        }
                         throw;
                     }
                     _context.Logger?.LogWarning(
@@ -111,110 +147,14 @@ namespace Penguins.ClientPenguins
             }
         }
 
-        private IPenguin toIPenguin(YamlPenguin yp, int depth = 0)
+        private IPenguin toIPenguin(YamlPenguin yp)
         {
-            if (depth >= 255)
-            {
-                throw new StackOverflowException(
-                    "Nesting workflows deeper than 255 levels is not allowed."
-                );
-            }
-
-            WaddleServerContext getServerContext()
+            IPenguin p = _matcher.Match(yp);
+            if (p is ServerPenguinBase)
             {
                 _usesServer = true;
-                return _context.ServerOrThrow;
             }
 
-            IPenguin p = _matcher.Match(yp);
-
-            if (Guid.NewGuid().ToString() == "asdf")
-            {
-                IPenguin pla = yp switch
-                {
-                    { Cmd: { } cmd } => new RunCommandPenguin(_context)
-                    {
-                        Name = yp.Name,
-                        Command = cmd,
-                        Shell = yp.Shell,
-                        Variable = yp.Variable,
-                    },
-
-                    { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(
-                        _context,
-                        getServerContext()
-                    )
-                    {
-                        Name = yp.Name,
-                        Command = serverCmd,
-                    },
-
-                    { ReceiveFolder: { } receiveFolder, Destination: { } destination } =>
-                        new ReceiveFolderPenguin(_context, getServerContext())
-                        {
-                            Name = yp.Name,
-                            Source = receiveFolder,
-                            Destination = destination,
-                        },
-
-                    { SendFolder: { } sendFolder, Destination: { } destination } =>
-                        new SendFolderPenguin(_context, getServerContext())
-                        {
-                            Name = yp.Name,
-                            Source = sendFolder,
-                            Destination = destination,
-                        },
-                    { SendCompressed: { } sendCompressed, Destination: { } destination } =>
-                        SendCompressedFolderPenguin.New(
-                            _context,
-                            getServerContext(),
-                            yp.Name,
-                            sendCompressed,
-                            destination
-                        ),
-                    { SendFile: { } sendFile, Destination: { } destination } => new SendFilePenguin(
-                        _context,
-                        getServerContext()
-                    )
-                    {
-                        Name = yp.Name,
-                        Source = sendFile,
-                        Destination = destination,
-                    },
-                    { ReceiveFile: { } receiveFile, Destination: { } destination } =>
-                        new ReceiveFilePenguin(_context, getServerContext())
-                        {
-                            Name = yp.Name,
-                            Source = receiveFile,
-                            Destination = destination,
-                        },
-                    { Workflow: { } workflow } => new RunWorkflowPenguin(
-                        _context,
-                        WaddleWorkflow.FromWorkflowName(
-                            workflow,
-                            out string sourceFile,
-                            _context.Logger
-                        ),
-                        sourceFile,
-                        depth + 1
-                    )
-                    {
-                        Name = yp.Name,
-                    },
-                    { Children: { } children } => new RunWorkflowPenguin(
-                        _context,
-                        children,
-                        null,
-                        depth + 1
-                    )
-                    {
-                        Name = yp.Name,
-                    },
-                    _ => throw new ArgumentException(
-                        $"The workflow contains invalid penguins. {(yp.Name is not null ? "Invalid penguin:" : "")} {yp.Name}"
-                    ),
-                };
-            }
             _context.Logger?.LogDebug("Created IPenguin {name}", p.Name);
             p.TimeoutMs = yp.TimeoutMs;
             p.IgnoreError = yp.IgnoreError;

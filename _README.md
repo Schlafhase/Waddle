@@ -158,7 +158,14 @@ parameters:
   fails
 - `timeoutMs` (int): Sets the timeout in milliseconds
 
-#### Example
+### Variables
+
+Some penguins can export variables (currently only the RunCommandPenguin). These
+variables can be used in almost any string value by writing "${variableName}".
+Variable names can contain alpha-numeric characters and an underscore. If you still need to
+write out "${variableName}" for some reason, use two dollar signs to escape it: "$${variableName}".
+
+### Example
 
 Here is the workflow I used in the demo video:
 
@@ -192,7 +199,8 @@ Here is the workflow I used in the demo video:
 >
 > **Workflows will always use the directory they are defined in as CWD.** This
 > means that relative file paths will resolve relative to the yaml-file that
-> defines the workflow. This also includes workflows imported via the `workflow` parameter.
+> defines the workflow. This also includes workflows imported via the `workflow`
+> parameter.
 
 **The quick answer:** `waddle {workflow name}`
 

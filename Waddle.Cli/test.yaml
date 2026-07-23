@@ -57,10 +57,10 @@
   ignoreError: true
 
 - name: Nested ignored error
+  ignoreError: true
   children:
-  - name: Ignore Error
-    serverCmd: asdf
-    ignoreError: true
+  - name: Throw
+    error: hehehe i'm so evil
 
 - name: sleep (again)
   cmd: sleep 2
@@ -68,10 +68,19 @@
 - name: Nested from file
   workflow: nested/test
 
+- name: conditional error false
+  error: if you read this, something's not right
+  ifFalsy: test # remember that test was set by the first penguin so it shouldn't be falsy
+
+- name: conditional error true
+  error: helloo
+  ignoreError: true
+  ifFalsy: test
+
 - name: Nested Error
   children:
-  - name: Local Error
-    cmd: asdf
+  - name: Custom error
+    error: i crashed your app :)
 
 - name: After error
   serverCmd: echo hi server
