@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Renci.SshNet;
 using SshNet.Agent;
 
@@ -13,6 +12,8 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
 
     public required Stream ServerOutput;
     public readonly StreamWriter ServerOutputWriter;
+
+    public required WaddleServerConfig Config;
 
     private bool _connected;
     private readonly ILogger? _logger;
@@ -46,7 +47,7 @@ public sealed class WaddleServerContext : IAsyncDisposable, IDisposable
 
         ConnectionInfo createInfo()
         {
-            return new(cfg.Host, cfg.Port, cfg.Username, method) {LoggerFactory = loggerFactory};
+            return new(cfg.Host, cfg.Port, cfg.Username, method) { LoggerFactory = loggerFactory };
         }
 
         _logger = logger;

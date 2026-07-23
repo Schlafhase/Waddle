@@ -16,6 +16,7 @@ public struct WaddleServerConfig
     public bool UseSshAgent;
 
     public string? ServerOutputFileName;
+    public required char DirectorySeparator;
     #endregion
 
     [YamlIgnore]
@@ -47,6 +48,10 @@ public struct WaddleServerConfig
         {
             unset.Add($"One of {nameof(UsePassword)}, {nameof(Keyfile)} or {nameof(UseSshAgent)}");
         }
+        if (DirectorySeparator is default(char))
+        {
+            unset.Add(nameof(DirectorySeparator));
+        }
         return unset;
     }
 }
@@ -66,6 +71,7 @@ public struct WaddleConfig
     public string WaitingIcon;
     public string ErrorIcon;
     public string IgnoredIcon;
+
     [YamlMember(Alias = "NotActiveIcon")]
     public string IdleIcon;
 

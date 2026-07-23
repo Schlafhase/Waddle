@@ -35,6 +35,14 @@
     receiveFolder: /home/Linus/out/put/
     destination: ./output
 
+  - name: Send folder
+    sendFolder: ./output/
+    destination: /home/Linus/out/put2
+
+  - name: Send compressed folder
+    sendCompressed: ./output/
+    destination: /home/Linus/out/put3
+
   - name: Sleep
     serverCmd: sleep 2
 

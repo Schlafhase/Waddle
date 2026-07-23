@@ -38,13 +38,22 @@ public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext ser
             {
                 await downloadDirectory(
                     file.FullName,
-                    Path.Combine(destination, Path.GetRelativePath(source, file.FullName)),
+                    SftpUtils.CombinePath(
+                        destination,
+                        Path.GetRelativePath(source, file.FullName),
+                        serverContext.Config.DirectorySeparator
+                    ),
                     cancellationToken
                 );
                 continue;
             }
 
-            string destinationPath = Path.GetFullPath(Path.Combine(destination, file.Name));
+            string destinationPath = Path.GetFullPath(
+                Path.Combine(
+                    destination,
+                    file.Name
+                )
+            );
             context.Logger?.LogTrace(
                 "Downloading file {file} to {dest}",
                 file.FullName,

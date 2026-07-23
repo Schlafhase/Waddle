@@ -41,7 +41,11 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
                 await using FileStream fs = File.OpenRead(f);
                 await serverContext.SftpClient.UploadFileAsync(
                     fs,
-                    Path.Combine(destination, Path.GetFileName(f)),
+                    SftpUtils.CombinePath(
+                        destination,
+                        Path.GetFileName(f),
+                        serverContext.Config.DirectorySeparator
+                    ),
                     cancellationToken
                 );
             }
@@ -58,7 +62,11 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
         {
             await sendFolder(
                 dir,
-                Path.Combine(destination, Path.GetRelativePath(path, dir)),
+                SftpUtils.CombinePath(
+                    destination,
+                    Path.GetRelativePath(path, dir),
+                    serverContext.Config.DirectorySeparator
+                ),
                 cancellationToken
             );
         }

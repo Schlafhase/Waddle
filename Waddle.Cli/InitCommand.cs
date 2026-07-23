@@ -89,7 +89,12 @@ public class InitCommand : Command
             goto client;
         }
 
-        WaddleServerConfig serverConfig = new() { Host = "", Username = "" };
+        WaddleServerConfig serverConfig = new()
+        {
+            Host = "",
+            Username = "",
+            DirectorySeparator = '/',
+        };
 
         // Hostname
         serverConfig.Host = ask(

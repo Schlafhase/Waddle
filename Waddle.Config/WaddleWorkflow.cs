@@ -18,7 +18,9 @@ public struct YamlPenguin
 
     // File stuff
     public string? SendFolder;
+    public string? SendCompressed;
     public string? ReceiveFolder;
+    public string? ReceiveCompressed;
     public string? SendFile;
     public string? ReceiveFile;
     public string? Destination;
@@ -41,13 +43,26 @@ public static class WaddleWorkflow
         return workflow;
     }
 
-    public static List<YamlPenguin> FromWorkflowName(string workflowName, ILogger? logger = null)
+    public static List<YamlPenguin> FromWorkflowName(
+            string workflowName,
+            ILogger? logger = null
+            )
+    {
+        return FromWorkflowName(workflowName, out _, logger);
+    }
+
+    public static List<YamlPenguin> FromWorkflowName(
+        string workflowName,
+        out string sourceFile,
+        ILogger? logger = null
+    )
     {
         List<string> allowedFileEndings = [".w.yaml", ".w.yml", ".yaml", ".yml"];
         bool hasFileEnding = allowedFileEndings.Any(workflowName.EndsWith);
         logger?.LogTrace("Finding workflow file for `{workflow}`", workflowName);
 
         string yaml = "";
+        sourceFile = "";
         if (hasFileEnding)
         {
             logger?.LogTrace("Checking `{file}`", workflowName);
@@ -55,6 +70,7 @@ public static class WaddleWorkflow
             {
                 logger?.LogInformation("Using `{file}` as workflow file", workflowName);
                 yaml = File.ReadAllText(workflowName);
+                sourceFile = workflowName;
             }
         }
         else
@@ -69,6 +85,7 @@ public static class WaddleWorkflow
                         workflowName + ending
                     );
                     yaml = File.ReadAllText(workflowName + ending);
+                    sourceFile = workflowName + ending;
                     break;
                 }
             }
@@ -79,6 +96,7 @@ public static class WaddleWorkflow
                 "The requested workflow is empty or doesn't exist. Create a .yaml, .yml, .w.yaml or .w.yml file to create it."
             );
         }
+
         return FromYaml(yaml);
     }
 }

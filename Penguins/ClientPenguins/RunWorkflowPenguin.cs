@@ -12,6 +12,7 @@ namespace Penguins.ClientPenguins;
 public class RunWorkflowPenguin : PenguinBase
 {
     public List<YamlPenguin> Workflow;
+    public string? Source;
     private bool _usesServer;
     public List<IPenguin> Penguins = [];
     public Action? OnPenguinsChange;
@@ -31,6 +32,15 @@ public class RunWorkflowPenguin : PenguinBase
     // TODO: probably needs to be integrated into the workflow runner directly
     public override async Task Execute(CancellationToken cancellationToken)
     {
+        string previousWorkingDir = Directory.GetCurrentDirectory();
+        if (
+            Source is not null
+            && Path.GetDirectoryName(Path.GetFullPath(Source)) is string sourceDir
+        )
+        {
+            Directory.SetCurrentDirectory(sourceDir);
+        }
+
         if (_usesServer)
         {
             await _context.ServerOrThrow.Connect();
@@ -76,6 +86,7 @@ public class RunWorkflowPenguin : PenguinBase
 
             p.OnStatusChange = null;
         }
+        Directory.SetCurrentDirectory(previousWorkingDir);
     }
 
     private IPenguin toIPenguin(YamlPenguin yp, int depth = 0)
@@ -128,6 +139,14 @@ public class RunWorkflowPenguin : PenguinBase
                 Source = sendFolder,
                 Destination = destination,
             },
+            { SendCompressed: { } sendCompressed, Destination: { } destination } =>
+                SendCompressedFolderPenguin.New(
+                    _context,
+                    getServerContext(),
+                    yp.Name,
+                    sendCompressed,
+                    destination
+                ),
             { SendFile: { } sendFile, Destination: { } destination } => new SendFilePenguin(
                 _context,
                 getServerContext()
@@ -146,11 +165,12 @@ public class RunWorkflowPenguin : PenguinBase
                 },
             { Workflow: { } workflow } => new RunWorkflowPenguin(
                 _context,
-                WaddleWorkflow.FromWorkflowName(workflow),
+                WaddleWorkflow.FromWorkflowName(workflow, out string sourceFile, _context.Logger),
                 depth + 1
             )
             {
                 Name = yp.Name,
+                Source = sourceFile,
             },
             { Children: { } children } => new RunWorkflowPenguin(_context, children, depth + 1)
             {
@@ -166,4 +186,5 @@ public class RunWorkflowPenguin : PenguinBase
         p.State = PenguinState.Idle;
         return p;
     }
+
 }

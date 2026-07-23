@@ -23,8 +23,18 @@ public static class SftpUtils
         )
         {
             context.Logger?.LogTrace("Creating remote directory {dir}", parent.FullName);
-            await CreateDirectoryRecursive(context, serverContext, parent.FullName, cancellationToken);
+            await CreateDirectoryRecursive(
+                context,
+                serverContext,
+                parent.FullName,
+                cancellationToken
+            );
         }
         await serverContext.SftpClient.CreateDirectoryAsync(path, cancellationToken);
+    }
+
+    public static string CombinePath(string a, string b, char separator)
+    {
+        return a.TrimEnd(separator) + separator + b;
     }
 }

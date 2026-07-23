@@ -139,7 +139,8 @@ available penguins:
 
 > [!NOTE]
 >
-> A good place to look for example usages of penguins is [Waddle.Cli/test.yaml](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Cli/test.yaml)
+> A good place to look for example usages of penguins is
+> [Waddle.Cli/test.yaml](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Cli/test.yaml)
 
 {penguinsTable}
 
@@ -274,9 +275,11 @@ that need client/server interaction will use these technologies.
 ## Planned features
 
 - Unit tests _(Implementing)_
-- Check fingerprint Choose shell program _(Implemented but not thoroughly
-  tested)_
+- Check fingerprint
+- Choose shell program _(Implemented but not thoroughly tested)_
 - Allow nested workflows _(Implemented but not thoroughly tested)_
+- Allow penguins to hide
+- Allow penguins to throw errors
 - Add SendCompressedFolderPenguin
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows _(Implemented but not thoroughly tested)_

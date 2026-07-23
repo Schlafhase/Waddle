@@ -48,7 +48,9 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
 
         if (cfg.Server is { } serverCfg)
         {
-            Server = new WaddleServerContext(serverCfg, Logger, getPassword, _loggerFactory);
+            Server = new WaddleServerContext(serverCfg, Logger, getPassword, _loggerFactory) {
+                Config = serverCfg
+            };
         }
 
         Config = cfg;
