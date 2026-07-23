@@ -72,10 +72,15 @@ public class RunCommand : AsyncCommand<RunSettings>
         string workflowName = !string.IsNullOrWhiteSpace(settings.Workflow)
             ? settings.Workflow
             : config.DefaultWorkflow;
+        string sourceFile;
 
         try
         {
-            workflow = WaddleWorkflow.FromWorkflowName(workflowName, waddleContext.Logger);
+            workflow = WaddleWorkflow.FromWorkflowName(
+                workflowName,
+                out sourceFile,
+                waddleContext.Logger
+            );
         }
         catch (Exception e)
         {
@@ -101,7 +106,7 @@ public class RunCommand : AsyncCommand<RunSettings>
 
         try
         {
-            workflowPenguin = new(waddleContext, workflow)
+            workflowPenguin = new(waddleContext, workflow, sourceFile)
             {
                 Name = workflowName,
                 State = PenguinState.Working,
@@ -109,9 +114,29 @@ public class RunCommand : AsyncCommand<RunSettings>
         }
         catch (StackOverflowException)
         {
+            waddleContext.Logger?.LogCritical("Circular dependency in workflow");
             AnsiConsole.MarkupLine(
                 "[red]Circular dependency in workflow detected. Recursive workflows are not supported.[/]"
             );
+            return 1;
+        }
+        catch (MissingServerConfigException)
+        {
+            waddleContext.Logger?.LogCritical(
+                "Missing server configuration in workflow that requires it"
+            );
+            AnsiConsole.MarkupLine(
+                "[red]The workflow contains server penguins but your waddle configuration doesn't contain server information. Please add the [blue]Server[/] property to [blue]waddle.yaml[/] or fill out the required fields by running [blue]waddle init[/]. (You will have to add a server when asked)[/]"
+            );
+            return 1;
+        }
+        catch (Exception e)
+        {
+            waddleContext.Logger?.LogCritical("Failed to initialise workflow: {e}", e);
+            AnsiConsole.MarkupLineInterpolated(
+                $"[red]Failed to initialise workflow: {e.Message}[/]"
+            );
+
             return 1;
         }
 

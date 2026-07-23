@@ -1,3 +1,9 @@
+Server:
+  Host: localhost
+  Username: root
+  Port: 2222
+  Keyfile: ~/.ssh/id_ed25519
+  DirectorySeparator: /
 ClientOutputFileName: output.txt
 LogFileName: waddle.log
 LogLevel: Trace

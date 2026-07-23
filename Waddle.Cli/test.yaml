@@ -61,7 +61,7 @@
   cmd: sleep 2
 
 - name: Nested from file
-  workflow: _test
+  workflow: nested/_test
 
 - name: Nested Error
   children:

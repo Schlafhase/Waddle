@@ -43,10 +43,7 @@ public static class WaddleWorkflow
         return workflow;
     }
 
-    public static List<YamlPenguin> FromWorkflowName(
-            string workflowName,
-            ILogger? logger = null
-            )
+    public static List<YamlPenguin> FromWorkflowName(string workflowName, ILogger? logger = null)
     {
         return FromWorkflowName(workflowName, out _, logger);
     }
@@ -93,9 +90,10 @@ public static class WaddleWorkflow
         if (string.IsNullOrWhiteSpace(yaml))
         {
             throw new ArgumentException(
-                "The requested workflow is empty or doesn't exist. Create a .yaml, .yml, .w.yaml or .w.yml file to create it."
+                $"The requested workflow ({workflowName}) is empty or doesn't exist. Create a .yaml, .yml, .w.yaml or .w.yml file to create it."
             );
         }
+        logger?.LogTrace("Source file: {file}", sourceFile);
 
         return FromYaml(yaml);
     }

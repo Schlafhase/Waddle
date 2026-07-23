@@ -18,10 +18,18 @@ public class RunWorkflowPenguin : PenguinBase
     public Action? OnPenguinsChange;
     private readonly WaddleContext _context;
 
-    public RunWorkflowPenguin(WaddleContext context, List<YamlPenguin> workflow, int depth = 0)
+    public RunWorkflowPenguin(
+        WaddleContext context,
+        List<YamlPenguin> workflow,
+        string? sourceFile = null,
+        int depth = 0
+    )
     {
+        Source = sourceFile;
         Workflow = workflow;
         _context = context;
+        string? dir = !string.IsNullOrWhiteSpace(Source) ? Path.GetDirectoryName(Source) : null;
+        using var _ = new Cd(dir, context.Logger);
         foreach (YamlPenguin yp in Workflow)
         {
             IPenguin p = toIPenguin(yp, depth);
@@ -29,17 +37,9 @@ public class RunWorkflowPenguin : PenguinBase
         }
     }
 
-    // TODO: probably needs to be integrated into the workflow runner directly
     public override async Task Execute(CancellationToken cancellationToken)
     {
-        string previousWorkingDir = Directory.GetCurrentDirectory();
-        if (
-            Source is not null
-            && Path.GetDirectoryName(Path.GetFullPath(Source)) is string sourceDir
-        )
-        {
-            Directory.SetCurrentDirectory(sourceDir);
-        }
+        using var _ = new Cd(Path.GetDirectoryName(Source), _context.Logger);
 
         if (_usesServer)
         {
@@ -86,7 +86,6 @@ public class RunWorkflowPenguin : PenguinBase
 
             p.OnStatusChange = null;
         }
-        Directory.SetCurrentDirectory(previousWorkingDir);
     }
 
     private IPenguin toIPenguin(YamlPenguin yp, int depth = 0)
@@ -166,13 +165,18 @@ public class RunWorkflowPenguin : PenguinBase
             { Workflow: { } workflow } => new RunWorkflowPenguin(
                 _context,
                 WaddleWorkflow.FromWorkflowName(workflow, out string sourceFile, _context.Logger),
+                sourceFile,
                 depth + 1
             )
             {
                 Name = yp.Name,
-                Source = sourceFile,
             },
-            { Children: { } children } => new RunWorkflowPenguin(_context, children, depth + 1)
+            { Children: { } children } => new RunWorkflowPenguin(
+                _context,
+                children,
+                null,
+                depth + 1
+            )
             {
                 Name = yp.Name,
             },
@@ -186,5 +190,35 @@ public class RunWorkflowPenguin : PenguinBase
         p.State = PenguinState.Idle;
         return p;
     }
+}
 
+// Helper class run a bit of code in a different directory
+file class Cd : IDisposable
+{
+    private readonly string? _previousDir;
+    private readonly ILogger? _logger;
+
+    public Cd(string? dir, ILogger? logger)
+    {
+        _logger = logger;
+        if (string.IsNullOrWhiteSpace(dir))
+        {
+            _logger?.LogTrace("Not changing directory because dir was null");
+            return;
+        }
+        _previousDir = Directory.GetCurrentDirectory();
+        _logger?.LogDebug("Current directory: {dir}", _previousDir);
+        _logger?.LogDebug("Changing directory: {dir}", dir);
+        Directory.SetCurrentDirectory(dir);
+    }
+
+    public void Dispose()
+    {
+        if (string.IsNullOrWhiteSpace(_previousDir))
+        {
+            return;
+        }
+        _logger?.LogDebug("Restoring directory: {dir}", _previousDir);
+        Directory.SetCurrentDirectory(_previousDir);
+    }
 }
