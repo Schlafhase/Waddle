@@ -9,14 +9,14 @@ namespace Penguins.ServerPenguins;
 #endregion
 
 public class ReceiveFilePenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase
+    : PenguinBase(context)
 {
     public required string Source;
     public required string Destination;
 
     public override async Task Execute(CancellationToken cancellationToken)
     {
-        context.Logger?.LogTrace("Downloading file {file} to {dest}", Source, Destination);
+        _context.Logger?.LogTrace("Downloading file {file} to {dest}", Source, Destination);
         Directory.CreateDirectory(
             Path.GetDirectoryName(Destination)
                 ?? throw new InvalidOperationException("Invalid Destination path")

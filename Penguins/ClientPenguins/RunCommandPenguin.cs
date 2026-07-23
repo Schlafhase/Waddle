@@ -17,14 +17,18 @@ public class CommandException : Exception
 }
 
 #region ReadmeInfo
-// Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course).
-// `cmd` (string), `shell` (List\<string\>)
+// Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course). Specify `variable` to store the output in a variable.
+// `cmd` (string), `shell` (List\<string\>), `variable` (string)
 #endregion
 
-public class RunCommandPenguin(WaddleContext context) : PenguinBase
+public class RunCommandPenguin(WaddleContext context) : PenguinBase(context)
 {
+    [Interpolated]
     public required string Command { get; init; }
+
+    [Interpolated]
     public List<string>? Shell { get; init; }
+
     public string? Output { get; private set; }
     public int? ExitStatus { get; private set; }
 
@@ -32,7 +36,7 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase
     {
         bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-        var shell = Shell ?? context.Config.DefaultShell;
+        var shell = Shell ?? _context.Config.DefaultShell;
 
         ProcessStartInfo psi = new()
         {
@@ -74,8 +78,8 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase
         Output = output;
         ExitStatus = p.ExitCode;
 
-        await context.ClientOutputWriter.WriteAsync(output);
-        context.Logger?.LogTrace("Local command result: {output}", output);
+        await _context.ClientOutputWriter.WriteAsync(output);
+        _context.Logger?.LogTrace("Local command result: {output}", output);
 
         if (ExitStatus is not null && ExitStatus != 0)
         {

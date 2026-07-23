@@ -10,7 +10,7 @@ namespace Penguins.ServerPenguins;
 #endregion
 
 public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase
+    : PenguinBase(context)
 {
     public required string Source;
     public required string Destination;
@@ -48,13 +48,8 @@ public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext ser
                 continue;
             }
 
-            string destinationPath = Path.GetFullPath(
-                Path.Combine(
-                    destination,
-                    file.Name
-                )
-            );
-            context.Logger?.LogTrace(
+            string destinationPath = Path.GetFullPath(Path.Combine(destination, file.Name));
+            _context.Logger?.LogTrace(
                 "Downloading file {file} to {dest}",
                 file.FullName,
                 destinationPath

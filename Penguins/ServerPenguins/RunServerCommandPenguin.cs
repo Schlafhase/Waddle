@@ -21,7 +21,7 @@ public class ServerCommandException : Exception
 }
 
 public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase
+    : PenguinBase(context)
 {
     public required string Command { get; init; }
     public int? ExitStatus { get; private set; }
@@ -32,7 +32,7 @@ public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext 
         await cmd.ExecuteAsync(cancellationToken);
 
         string output = cmd.Result + cmd.Error;
-        context.Logger?.LogTrace("Remote command output: {output}", output);
+        _context.Logger?.LogTrace("Remote command output: {output}", output);
         await serverContext.ServerOutputWriter.WriteAsync(output);
         ExitStatus = cmd.ExitStatus;
 

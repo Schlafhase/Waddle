@@ -6,15 +6,22 @@ namespace Waddle.Config;
 
 public struct YamlPenguin
 {
+    // Any penguin can define this
     public required string Name;
     public bool IgnoreError;
     public int? TimeoutMs;
+    public bool Hide;
+
+    public string? Error;
+    public string? ThrowIfDefined;
 
     // RunCommand
     public string? Cmd;
     public List<string>? Shell;
 
     public string? ServerCmd;
+
+    public string Variable;
 
     // File stuff
     public string? SendFolder;

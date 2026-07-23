@@ -16,14 +16,13 @@ public class RunWorkflowPenguin : PenguinBase
     private bool _usesServer;
     public List<IPenguin> Penguins = [];
     public Action? OnPenguinsChange;
-    private readonly WaddleContext _context;
 
     public RunWorkflowPenguin(
         WaddleContext context,
         List<YamlPenguin> workflow,
         string? sourceFile = null,
         int depth = 0
-    )
+    ) : base(context)
     {
         Source = sourceFile;
         Workflow = workflow;

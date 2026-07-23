@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
 using Waddle.Config.Exceptions;
 
-
 namespace Waddle.Config;
 
 public sealed class WaddleContext : IAsyncDisposable, IDisposable
@@ -16,6 +15,7 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
     public static string VersionString => $"{Version.Major}.{Version.Minor}.{Version.Build}";
 
     public required WaddleConfig Config;
+    public Dictionary<string, string> Variables;
 
     public WaddleServerContext? Server;
     public WaddleServerContext ServerOrThrow => Server ?? throw new MissingServerConfigException();
@@ -25,12 +25,12 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
 
     public ILogger? Logger;
 
-
     private readonly ILoggerFactory? _loggerFactory;
 
     [SetsRequiredMembers]
     public WaddleContext(WaddleConfig cfg, Func<string> getPassword)
     {
+        Variables = [];
         ClientOutput = cfg.ClientOutputFileName is not null
             ? new FileStream(cfg.ClientOutputFileName, FileMode.Create)
             : new MemoryStream();
@@ -48,8 +48,9 @@ public sealed class WaddleContext : IAsyncDisposable, IDisposable
 
         if (cfg.Server is { } serverCfg)
         {
-            Server = new WaddleServerContext(serverCfg, Logger, getPassword, _loggerFactory) {
-                Config = serverCfg
+            Server = new WaddleServerContext(serverCfg, Logger, getPassword, _loggerFactory)
+            {
+                Config = serverCfg,
             };
         }
 

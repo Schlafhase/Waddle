@@ -9,7 +9,7 @@ namespace Penguins.ServerPenguins;
 #endregion
 
 public class SendFolderPenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase
+    : PenguinBase(context)
 {
     public required string Source;
     public required string Destination;
@@ -26,7 +26,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
     )
     {
         await SftpUtils.CreateDirectoryRecursive(
-            context,
+            _context,
             serverContext,
             destination,
             cancellationToken
@@ -34,7 +34,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
         // Upload files
         foreach (string f in Directory.EnumerateFiles(path))
         {
-            context.Logger?.LogTrace("Uploading {file} to {destination}", f, destination);
+            _context.Logger?.LogTrace("Uploading {file} to {destination}", f, destination);
             Status = $"Sending {Path.GetRelativePath(Directory.GetCurrentDirectory(), f)}";
             try
             {
@@ -51,7 +51,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
             }
             catch (FileNotFoundException)
             {
-                context.Logger?.LogWarning(
+                _context.Logger?.LogWarning(
                     "Skipping file {file} because the file was not found.",
                     f
                 );

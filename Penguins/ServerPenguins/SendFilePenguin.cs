@@ -7,7 +7,7 @@ namespace Penguins.ServerPenguins;
 // `sendFile` (string), `destination` (string)
 #endregion
 
-public class SendFilePenguin(WaddleContext context, WaddleServerContext serverContext) : PenguinBase
+public class SendFilePenguin(WaddleContext context, WaddleServerContext serverContext) : PenguinBase(context)
 {
     public required string Source;
     public required string Destination;
@@ -16,7 +16,7 @@ public class SendFilePenguin(WaddleContext context, WaddleServerContext serverCo
     {
         await using FileStream fs = File.OpenRead(Source);
         await SftpUtils.CreateDirectoryRecursive(
-            context,
+            _context,
             serverContext,
             Path.GetDirectoryName(Destination)
                 ?? throw new InvalidOperationException("Invalid destination path"),
