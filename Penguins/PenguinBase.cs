@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Waddle.Config;
 
 namespace Penguins;
@@ -38,8 +39,9 @@ public abstract partial class PenguinBase(WaddleContext context) : IPenguin
 
     public virtual void ExecutePre()
     {
-        InterpolateProperties()
+        InterpolateProperties();
     }
+
     public abstract Task Execute(CancellationToken cancellationToken);
 
     protected void InterpolateProperties()
@@ -55,6 +57,8 @@ public abstract partial class PenguinBase(WaddleContext context) : IPenguin
                 continue;
             }
 
+            _context.Logger?.LogDebug("Interpolating property: {prop}", prop.Name);
+
             string resolved = variablePattern()
                 .Replace(
                     raw,
@@ -65,9 +69,10 @@ public abstract partial class PenguinBase(WaddleContext context) : IPenguin
                             return "$";
                         }
 
-                        string name = match.Groups[2].Value;
+                        string name = match.Groups[1].Value;
                         if (_context.Variables.TryGetValue(name, out string? result))
                         {
+                            _context.Logger?.LogDebug("Inserted {repl} into template", result);
                             return result;
                         }
                         throw new InvalidOperationException(
@@ -75,6 +80,7 @@ public abstract partial class PenguinBase(WaddleContext context) : IPenguin
                         );
                     }
                 );
+            prop.SetValue(this, resolved);
         }
     }
 }

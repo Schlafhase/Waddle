@@ -3,7 +3,12 @@
   cmd: sleep 1
 
 - name: Client command
-  cmd: echo hello client
+  cmd: echo hellooooo client
+  variable: test
+
+- name: Use variable
+  cmd: ${test}
+  ignoreError: true
 
 - name: Nushell command
   cmd: ls | select name
@@ -61,7 +66,7 @@
   cmd: sleep 2
 
 - name: Nested from file
-  workflow: nested/_test
+  workflow: nested/test
 
 - name: Nested Error
   children:

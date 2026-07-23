@@ -29,6 +29,9 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase(context)
     [Interpolated]
     public List<string>? Shell { get; init; }
 
+    [Interpolated]
+    public string? Variable { get; init; }
+
     public string? Output { get; private set; }
     public int? ExitStatus { get; private set; }
 
@@ -80,6 +83,10 @@ public class RunCommandPenguin(WaddleContext context) : PenguinBase(context)
 
         await _context.ClientOutputWriter.WriteAsync(output);
         _context.Logger?.LogTrace("Local command result: {output}", output);
+        if (Variable is not null)
+        {
+            _context.Variables[Variable] = Output;
+        }
 
         if (ExitStatus is not null && ExitStatus != 0)
         {

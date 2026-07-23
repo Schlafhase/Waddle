@@ -22,7 +22,8 @@ public class RunWorkflowPenguin : PenguinBase
         List<YamlPenguin> workflow,
         string? sourceFile = null,
         int depth = 0
-    ) : base(context)
+    )
+        : base(context)
     {
         Source = sourceFile;
         Workflow = workflow;
@@ -59,7 +60,10 @@ public class RunWorkflowPenguin : PenguinBase
                 _context.Logger?.LogInformation("Running {name}", p.Name);
                 RunWorkflowPenguin? rwp = p is RunWorkflowPenguin _rwp ? _rwp : null;
                 rwp?.OnPenguinsChange = OnPenguinsChange;
+
+                p.ExecutePre();
                 await p.Execute(tokenSource.Token);
+
                 p.State = PenguinState.Success;
                 p.Status = "";
                 rwp?.OnPenguinsChange = null;
@@ -109,6 +113,7 @@ public class RunWorkflowPenguin : PenguinBase
                 Name = yp.Name,
                 Command = cmd,
                 Shell = yp.Shell,
+                Variable = yp.Variable
             },
 
             { ServerCmd: { } serverCmd } => new RunServerCommandPenguin(

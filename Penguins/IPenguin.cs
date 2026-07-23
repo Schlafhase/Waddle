@@ -19,5 +19,6 @@ public interface IPenguin
     public string? Status { get; set; }
     public Action? OnStatusChange {set;}
 
+    public void ExecutePre();
     public Task Execute(CancellationToken cancellationToken);
 }
