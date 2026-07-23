@@ -289,7 +289,7 @@ that need client/server interaction will use these technologies.
 - Add SendCompressedFolderPenguin _(Implemented but not thoroughly tested)_
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows _(Implemented but not thoroughly tested)_
-- Workflow variables
+- Workflow variables _(Implemented but not thoroughly tested)_
 - `waddle new` command to add a workflow _(not planned)_
 - Run waddle workflows from the directory of the workflow to prevent unexpected
   behaviour _(Implemented but not thoroughly tested)_

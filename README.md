@@ -154,16 +154,16 @@ available penguins:
 > A good place to look for example usages of penguins is
 > [Waddle.Cli/test.yaml](https://github.com/Schlafhase/Waddle/blob/master/Waddle.Cli/test.yaml)
 
-| Penguin                                                                                                                         | Description                                                                                                                                                                        | Parameters                                         |
-| ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                         | Uploads a single file to a destination (file!) on the server                                                                                                                       | `sendFile` (string), `destination` (string)        |
-| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)                   | Downloads a single file from the server to a destination (file!) on the client                                                                                                     | `receiveFile` (string), `destination` (string)     |
-| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs)         | Runs a command on the on the server via SSH                                                                                                                                        | `serverCmd` (string)                               |
-| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)                     | Uploads a folder to a destination (directory!) on the server                                                                                                                       | `sendFolder` (string), `destination` (string)      |
-| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)               | Downloads a folder from the server to a destination (directory!) on the client                                                                                                     | `receiveFolder` (string), `destination` (string)   |
-| [SendCompressedFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendCompressedFolderPenguin.cs) | Sends a folder as a tar archive and extracts it on the server. Requires `tar` to be installed on both the client **and** the server                                                | `sendCompressed` (string), `destination` (string)  |
-| [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)                     | Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course). | `cmd` (string), `shell` (List\<string\>)           |
-| [RunWorkflow](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunWorkflowPenguin.cs)                   | Runs a workflow from a filepath or a list of penguins                                                                                                                              | `workflow` (string), `children` (List\<IPenguin\>) |
+| Penguin                                                                                                                         | Description                                                                                                                                                                                                                              | Parameters                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| [SendCompressedFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendCompressedFolderPenguin.cs) | Sends a folder as a tar archive and extracts it on the server. Requires `tar` to be installed on both the client **and** the server                                                                                                      | `sendCompressed` (string), `destination` (string)             |
+| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)                   | Downloads a single file from the server to a destination (file!) on the client                                                                                                                                                           | `receiveFile` (string), `destination` (string)                |
+| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)               | Downloads a folder from the server to a destination (directory!) on the client                                                                                                                                                           | `receiveFolder` (string), `destination` (string)              |
+| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs)         | Runs a command on the on the server via SSH                                                                                                                                                                                              | `serverCmd` (string)                                          |
+| [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                         | Uploads a single file to a destination (file!) on the server                                                                                                                                                                             | `sendFile` (string), `destination` (string)                   |
+| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)                     | Uploads a folder to a destination (directory!) on the server                                                                                                                                                                             | `sendFolder` (string), `destination` (string)                 |
+| [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)                     | Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course). Specify `variable` to store the output in a variable. | `cmd` (string), `shell` (List\<string\>), `variable` (string) |
+| [RunWorkflow](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunWorkflowPenguin.cs)                   | Runs a workflow from a filepath or a list of penguins                                                                                                                                                                                    | `workflow` (string), `children` (List\<IPenguin\>)            |
 
 > [!WARNING]
 >
@@ -271,7 +271,7 @@ public string? Keyfile;
 public bool UseSshAgent;
 
 public string? ServerOutputFileName;
-public required char DirectorySeparator;
+public char DirectorySeparator = '/';
 ```
 
 ## For developers
@@ -346,7 +346,7 @@ that need client/server interaction will use these technologies.
 - Add SendCompressedFolderPenguin _(Implemented but not thoroughly tested)_
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows _(Implemented but not thoroughly tested)_
-- Workflow variables
+- Workflow variables _(Implemented but not thoroughly tested)_
 - `waddle new` command to add a workflow _(not planned)_
 - Run waddle workflows from the directory of the workflow to prevent unexpected
   behaviour _(Implemented but not thoroughly tested)_
