@@ -34,7 +34,9 @@ namespace Penguins.ServerPenguins
     public class SendFilePenguin(WaddleContext context, WaddleServerContext serverContext)
         : ServerPenguinBase(context, serverContext)
     {
+        [Interpolated]
         public required string Source;
+        [Interpolated]
         public required string Destination;
 
         public override async Task Execute(CancellationToken cancellationToken)

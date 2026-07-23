@@ -37,9 +37,9 @@ namespace Penguins
                 { Error: string error } => new ThrowPenguin(context)
                 {
                     Name = yp.Name,
-                    Error = error
+                    Error = error,
                 },
-                _ => throw new NoMatchException()
+                _ => throw new NoMatchException(),
             };
         }
     }
@@ -49,7 +49,9 @@ namespace Penguins.ClientPenguins
 {
     public class ThrowPenguin(WaddleContext context) : PenguinBase(context)
     {
+        [Interpolated]
         public required string Error;
+        [Interpolated]
         public string? Variable;
         public bool IfTruthy;
 

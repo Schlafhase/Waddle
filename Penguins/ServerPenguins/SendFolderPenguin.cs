@@ -1,10 +1,7 @@
 using Microsoft.Extensions.Logging;
-
 using Penguins.ServerPenguins;
-
 using Waddle.Config;
 using Waddle.Config.Exceptions;
-
 
 #region ReadmeInfo
 // Uploads a folder to a destination (directory!) on the server
@@ -38,7 +35,9 @@ namespace Penguins.ServerPenguins
     public class SendFolderPenguin(WaddleContext context, WaddleServerContext serverContext)
         : ServerPenguinBase(context, serverContext)
     {
+        [Interpolated]
         public required string Source;
+        [Interpolated]
         public required string Destination;
 
         public override async Task Execute(CancellationToken cancellationToken)

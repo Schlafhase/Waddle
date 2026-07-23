@@ -161,9 +161,11 @@ parameters:
 ### Variables
 
 Some penguins can export variables (currently only the RunCommandPenguin). These
-variables can be used in almost any string value by writing "${variableName}".
+variables can be used in almost any string value by writing
+"${variableName}".
 Variable names can contain alpha-numeric characters and an underscore. If you still need to
-write out "${variableName}" for some reason, use two dollar signs to escape it: "$${variableName}".
+write out "${variableName}"
+for some reason, use two dollar signs to escape it: "$${variableName}".
 
 ### Example
 
@@ -289,6 +291,7 @@ that need client/server interaction will use these technologies.
 ## Planned features
 
 - Unit tests _(Implementing)_
+- Move interpolation resolver to YamlPenguin level more more flexibility
 - Check fingerprint
 - Choose shell program _(Implemented but not thoroughly tested)_
 - Allow nested workflows _(Implemented but not thoroughly tested)_

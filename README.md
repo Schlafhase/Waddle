@@ -156,15 +156,15 @@ available penguins:
 
 | Penguin                                                                                                                         | Description                                                                                                                                                                                                                              | Parameters                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs)         | Runs a command on the on the server via SSH                                                                                                                                                                                              | `serverCmd` (string)                                          |
-| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)                   | Downloads a single file from the server to a destination (file!) on the client                                                                                                                                                           | `receiveFile` (string), `destination` (string)                |
-| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)               | Downloads a folder from the server to a destination (directory!) on the client                                                                                                                                                           | `receiveFolder` (string), `destination` (string)              |
-| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)                     | Uploads a folder to a destination (directory!) on the server                                                                                                                                                                             | `sendFolder` (string), `destination` (string)                 |
 | [SendCompressedFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendCompressedFolderPenguin.cs) | Sends a folder as a tar archive and extracts it on the server. Requires `tar` to be installed on both the client **and** the server                                                                                                      | `sendCompressed` (string), `destination` (string)             |
+| [ReceiveFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFilePenguin.cs)                   | Downloads a single file from the server to a destination (file!) on the client                                                                                                                                                           | `receiveFile` (string), `destination` (string)                |
+| [SendFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFolderPenguin.cs)                     | Uploads a folder to a destination (directory!) on the server                                                                                                                                                                             | `sendFolder` (string), `destination` (string)                 |
+| [ReceiveFolder](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/ReceiveFolderPenguin.cs)               | Downloads a folder from the server to a destination (directory!) on the client                                                                                                                                                           | `receiveFolder` (string), `destination` (string)              |
+| [RunServerCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/RunServerCommandPenguin.cs)         | Runs a command on the on the server via SSH                                                                                                                                                                                              | `serverCmd` (string)                                          |
 | [SendFile](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ServerPenguins/SendFilePenguin.cs)                         | Uploads a single file to a destination (file!) on the server                                                                                                                                                                             | `sendFile` (string), `destination` (string)                   |
 | [RunCommand](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunCommandPenguin.cs)                     | Runs a command on the client using the value of `shell` as shell or `sh` (Linux) or `cmd.exe` (Windows). `shell` must be something like `["sh", "-c"]` (in yaml syntax of course). Specify `variable` to store the output in a variable. | `cmd` (string), `shell` (List\<string\>), `variable` (string) |
-| [Throw](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/ThrowPenguin.cs)                               | Throws an error. Either `ifTruthy` or `ifFalsy` can be set to variable names to only throw if the variable has a falsy ("0", "false", "null", unset) or truthy (anything else) value (case-insensitive, whitespace will be trimmed)      | `Error` (string), `ifTruthy` (string), `ifFalsy` (string)     |
 | [RunWorkflow](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/RunWorkflowPenguin.cs)                   | Runs a workflow from a filepath or a list of penguins                                                                                                                                                                                    | `workflow` (string), `children` (List\<IPenguin\>)            |
+| [Throw](https://github.com/Schlafhase/Waddle/blob/master/Penguins/ClientPenguins/ThrowPenguin.cs)                               | Throws an error. Either `ifTruthy` or `ifFalsy` can be set to variable names to only throw if the variable has a falsy ("0", "false", "null", unset) or truthy (anything else) value (case-insensitive, whitespace will be trimmed)      | `Error` (string), `ifTruthy` (string), `ifFalsy` (string)     |
 
 > [!WARNING]
 >
@@ -183,9 +183,11 @@ parameters:
 ### Variables
 
 Some penguins can export variables (currently only the RunCommandPenguin). These
-variables can be used in almost any string value by writing "${variableName}".
+variables can be used in almost any string value by writing
+"${variableName}".
 Variable names can contain alpha-numeric characters and an underscore. If you still need to
-write out "${variableName}" for some reason, use two dollar signs to escape it: "$${variableName}".
+write out "${variableName}"
+for some reason, use two dollar signs to escape it: "$${variableName}".
 
 ### Example
 
@@ -347,6 +349,7 @@ that need client/server interaction will use these technologies.
 ## Planned features
 
 - Unit tests _(Implementing)_
+- Move interpolation resolver to YamlPenguin level more more flexibility
 - Check fingerprint
 - Choose shell program _(Implemented but not thoroughly tested)_
 - Allow nested workflows _(Implemented but not thoroughly tested)_

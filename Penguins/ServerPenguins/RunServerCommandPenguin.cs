@@ -48,6 +48,7 @@ namespace Penguins.ServerPenguins
     public class RunServerCommandPenguin(WaddleContext context, WaddleServerContext serverContext)
         : ServerPenguinBase(context, serverContext)
     {
+        [Interpolated]
         public required string Command { get; init; }
         public int? ExitStatus { get; private set; }
 
