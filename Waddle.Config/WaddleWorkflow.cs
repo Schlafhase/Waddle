@@ -43,6 +43,7 @@ public static class WaddleWorkflow
     {
         IDeserializer deserializer = new DeserializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .WithTypeInspector(n => new CamelOrPascalCaseTypeInspector(n))
             .Build();
 
         List<YamlPenguin> workflow = deserializer.Deserialize<List<YamlPenguin>>(yaml);

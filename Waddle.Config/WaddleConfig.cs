@@ -114,7 +114,7 @@ public struct WaddleConfig
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .Build();
 
-        var config = deserializer.Deserialize<WaddleConfig>(yaml);
+        WaddleConfig config = deserializer.Deserialize<WaddleConfig>(yaml);
         config.ThrowIfInvalid();
         return config;
     }

@@ -9,7 +9,7 @@ namespace Penguins.ServerPenguins;
 #endregion
 
 public class ReceiveFilePenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase(context)
+    : ServerPenguinBase(context, serverContext)
 {
     public required string Source;
     public required string Destination;
@@ -23,6 +23,6 @@ public class ReceiveFilePenguin(WaddleContext context, WaddleServerContext serve
         );
         File.Delete(Destination);
         await using FileStream fs = File.OpenWrite(Destination);
-        await serverContext.SftpClient.DownloadFileAsync(Source, fs, cancellationToken);
+        await _serverContext.SftpClient.DownloadFileAsync(Source, fs, cancellationToken);
     }
 }

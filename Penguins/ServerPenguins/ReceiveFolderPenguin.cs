@@ -10,7 +10,7 @@ namespace Penguins.ServerPenguins;
 #endregion
 
 public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase(context)
+    : ServerPenguinBase(context, serverContext)
 {
     public required string Source;
     public required string Destination;
@@ -27,7 +27,7 @@ public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext ser
     )
     {
         await foreach (
-            ISftpFile file in serverContext.SftpClient.ListDirectoryAsync(source, cancellationToken)
+            ISftpFile file in _serverContext.SftpClient.ListDirectoryAsync(source, cancellationToken)
         )
         {
             if (file.Name is "." or "..")
@@ -41,7 +41,7 @@ public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext ser
                     SftpUtils.CombinePath(
                         destination,
                         Path.GetRelativePath(source, file.FullName),
-                        serverContext.Config.DirectorySeparator
+                        _serverContext.Config.DirectorySeparator
                     ),
                     cancellationToken
                 );
@@ -59,7 +59,7 @@ public class ReceiveFolderPenguin(WaddleContext context, WaddleServerContext ser
             Directory.CreateDirectory(destination);
             File.Delete(destinationPath);
             await using FileStream fs = File.OpenWrite(destinationPath);
-            await serverContext.SftpClient.DownloadFileAsync(file.FullName, fs, cancellationToken);
+            await _serverContext.SftpClient.DownloadFileAsync(file.FullName, fs, cancellationToken);
         }
     }
 }

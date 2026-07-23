@@ -94,9 +94,6 @@ public class RunCommand : AsyncCommand<RunSettings>
                 AnsiConsole.MarkupLineInterpolated(
                     $"[red]Failed to parse workflow: {e.Message}[/]"
                 );
-                AnsiConsole.WriteLine(
-                    "[red]A message like 'Property X not found on type Y.' means that you defined fields in your yaml file that don't exist."
-                );
             }
 
             return 1;

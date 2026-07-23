@@ -1,5 +1,5 @@
 # multiple actions in one penguin will lead to unexpected behaviour
-- name: first sleep
+- Name: first sleep
   cmd: sleep 1
 
 - name: Client command

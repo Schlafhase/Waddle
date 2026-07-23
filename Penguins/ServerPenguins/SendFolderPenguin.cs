@@ -9,7 +9,7 @@ namespace Penguins.ServerPenguins;
 #endregion
 
 public class SendFolderPenguin(WaddleContext context, WaddleServerContext serverContext)
-    : PenguinBase(context)
+    : ServerPenguinBase(context, serverContext)
 {
     public required string Source;
     public required string Destination;
@@ -27,7 +27,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
     {
         await SftpUtils.CreateDirectoryRecursive(
             _context,
-            serverContext,
+            _serverContext,
             destination,
             cancellationToken
         );
@@ -39,12 +39,12 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
             try
             {
                 await using FileStream fs = File.OpenRead(f);
-                await serverContext.SftpClient.UploadFileAsync(
+                await _serverContext.SftpClient.UploadFileAsync(
                     fs,
                     SftpUtils.CombinePath(
                         destination,
                         Path.GetFileName(f),
-                        serverContext.Config.DirectorySeparator
+                        _serverContext.Config.DirectorySeparator
                     ),
                     cancellationToken
                 );
@@ -65,7 +65,7 @@ public class SendFolderPenguin(WaddleContext context, WaddleServerContext server
                 SftpUtils.CombinePath(
                     destination,
                     Path.GetRelativePath(path, dir),
-                    serverContext.Config.DirectorySeparator
+                    _serverContext.Config.DirectorySeparator
                 ),
                 cancellationToken
             );
