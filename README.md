@@ -209,6 +209,12 @@ Here is the workflow I used in the demo video:
 
 ### Running Workflows
 
+> [!NOTE]
+>
+> **Workflows will always use the directory they are defined in as CWD.** This
+> means that relative file paths will resolve relative to the yaml-file that
+> defines the workflow. This also includes workflows imported via the `workflow` parameter.
+
 **The quick answer:** `waddle {workflow name}`
 
 **The details:**
@@ -337,10 +343,10 @@ that need client/server interaction will use these technologies.
 - Allow nested workflows _(Implemented but not thoroughly tested)_
 - Allow penguins to hide
 - Allow penguins to throw errors
-- Add SendCompressedFolderPenguin
+- Add SendCompressedFolderPenguin _(Implemented but not thoroughly tested)_
 - Add ReceiveCompressedFolderPenguin
 - Add client-only workflows _(Implemented but not thoroughly tested)_
 - Workflow variables
-- `waddle new` command to add a workflow
+- `waddle new` command to add a workflow _(not planned)_
 - Run waddle workflows from the directory of the workflow to prevent unexpected
-  behaviour
+  behaviour _(Implemented but not thoroughly tested)_
