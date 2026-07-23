@@ -4,7 +4,7 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Waddle.Config;
 
-public struct WaddleServerConfig
+public struct WaddleServerConfig()
 {
     #region ServerConfigFields
     public required string Host;
@@ -16,7 +16,7 @@ public struct WaddleServerConfig
     public bool UseSshAgent;
 
     public string? ServerOutputFileName;
-    public required char DirectorySeparator;
+    public char DirectorySeparator = '/';
     #endregion
 
     [YamlIgnore]
