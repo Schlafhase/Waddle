@@ -2,6 +2,8 @@
 
 # Waddle: Penguins with packets 📦🐧
 
+![time spent](https://hackatime.hackclub.com/api/v1/badge/U081Z7D7YJK/Schlafhase/Waddle)
+
 <img width="1282" height="283" alt="image" src="https://github.com/user-attachments/assets/3dce8a42-17ba-4ac5-aee7-70dbe36a5b39" />
 
 Waddle is a tool that automates deploying your project to servers like nest. It
